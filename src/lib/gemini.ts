@@ -62,6 +62,22 @@ function getApiKey() {
 }
 
 
+async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await ai.models.generateContent(params);
+    } catch (error: any) {
+      if (i === retries - 1) throw error;
+      const isQuotaError = error.message?.includes('429') || error.message?.includes('quota');
+      if (isQuotaError) {
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+        continue;
+      }
+      throw error;
+    }
+  }
+}
+
 export async function suggestCarBodies(brand: string, model: string, year: string): Promise<string[]> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
@@ -70,8 +86,8 @@ export async function suggestCarBodies(brand: string, model: string, year: strin
 Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -100,8 +116,8 @@ export async function suggestCarModels(brand: string): Promise<string[]> {
 Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -130,8 +146,8 @@ export async function suggestCarEngines(brand: string, model: string, year: stri
 Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0 M20A-FKS"].`;
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -175,8 +191,8 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -223,8 +239,8 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
   }
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
