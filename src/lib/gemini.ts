@@ -189,60 +189,8 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
     if (!text) throw new Error('Пустой ответ от ИИ');
     return JSON.parse(text) as CarData;
   } catch (error) {
-    console.warn("Gemini failed, falling back to GigaChat...", error);
-    
-    const gigaChatPrompt = prompt + `\n\nReturn ONLY a JSON object matching this exact schema:\n${JSON.stringify({
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        brand: { type: "string" },
-        model: { type: "string" },
-        year_from: { type: "integer" },
-        year_to: { type: "integer" },
-        generation: { type: "string" },
-        engine: { type: "string" },
-        engine_code: { type: "string" },
-        engine_type: { type: "string", description: "'petrol', 'diesel', 'hybrid', or 'gas'" },
-        drive: { type: "string", description: "'fwd', 'rwd', or 'awd'" },
-        transmission_type: { type: "string", description: "'mt', 'at', 'cvt', or 'dsg'" },
-        recommendations: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              unit: { type: "string", description: "Название узла на РУССКОМ языке" },
-              fluid_type: { type: "string" },
-              viscosity: { type: "string" },
-              specification: { type: "string" },
-              approval: { type: "string" },
-              volume_liters: { type: "number" },
-              replacement_interval: { type: "string", description: "Интервал замены на РУССКОМ языке" },
-              products: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: { type: "string" },
-                    brand_name: { type: "string", description: "Must be 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', or 'Moly Green'" },
-                    product_name: { type: "string" },
-                    category: { type: "string" },
-                    viscosity: { type: "string" },
-                    approvals: { type: "array", items: { type: "string" } },
-                    description: { type: "string", description: "Описание продукта на РУССКОМ языке" }
-                  },
-                  required: ["id", "brand_name", "product_name", "category", "viscosity", "approvals"]
-                }
-              }
-            },
-            required: ["unit", "fluid_type", "viscosity", "specification", "approval", "volume_liters", "replacement_interval", "products"]
-          }
-        }
-      },
-      required: ["id", "brand", "model", "year_from", "year_to", "generation", "engine", "engine_code", "engine_type", "drive", "transmission_type", "recommendations"]
-    }, null, 2)}`;
-
-    const text = await fallbackToGigaChat(gigaChatPrompt, false);
-    return JSON.parse(text) as CarData;
+    console.error("Gemini failed", error);
+    throw error;
   }
 }
 
@@ -289,59 +237,7 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
     if (!text) throw new Error('Пустой ответ от ИИ');
     return JSON.parse(text) as CarData;
   } catch (error) {
-    console.warn("Gemini failed, falling back to GigaChat...", error);
-    
-    const gigaChatPrompt = prompt + `\n\nReturn ONLY a JSON object matching this exact schema:\n${JSON.stringify({
-      type: "object",
-      properties: {
-        id: { type: "string" },
-        brand: { type: "string" },
-        model: { type: "string" },
-        year_from: { type: "integer" },
-        year_to: { type: "integer" },
-        generation: { type: "string" },
-        engine: { type: "string" },
-        engine_code: { type: "string" },
-        engine_type: { type: "string", description: "'petrol', 'diesel', 'hybrid', or 'gas'" },
-        drive: { type: "string", description: "'fwd', 'rwd', or 'awd'" },
-        transmission_type: { type: "string", description: "'mt', 'at', 'cvt', or 'dsg'" },
-        recommendations: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              unit: { type: "string", description: "Название узла на РУССКОМ языке" },
-              fluid_type: { type: "string" },
-              viscosity: { type: "string" },
-              specification: { type: "string" },
-              approval: { type: "string" },
-              volume_liters: { type: "number" },
-              replacement_interval: { type: "string", description: "Интервал замены на РУССКОМ языке" },
-              products: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: { type: "string" },
-                    brand_name: { type: "string", description: "Must be 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', or 'Moly Green'" },
-                    product_name: { type: "string" },
-                    category: { type: "string" },
-                    viscosity: { type: "string" },
-                    approvals: { type: "array", items: { type: "string" } },
-                    description: { type: "string", description: "Описание продукта на РУССКОМ языке" }
-                  },
-                  required: ["id", "brand_name", "product_name", "category", "viscosity", "approvals"]
-                }
-              }
-            },
-            required: ["unit", "fluid_type", "viscosity", "specification", "approval", "volume_liters", "replacement_interval", "products"]
-          }
-        }
-      },
-      required: ["id", "brand", "model", "year_from", "year_to", "generation", "engine", "engine_code", "engine_type", "drive", "transmission_type", "recommendations"]
-    }, null, 2)}`;
-
-    const text = await fallbackToGigaChat(gigaChatPrompt, false);
-    return JSON.parse(text) as CarData;
+    console.error("Gemini failed", error);
+    throw error;
   }
 }
