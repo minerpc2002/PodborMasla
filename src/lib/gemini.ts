@@ -61,88 +61,6 @@ function getApiKey() {
   return apiKey;
 }
 
-function getGigaChatApiKey() {
-  let apiKey = '';
-  try { apiKey = process.env.GIGACHAT_API_KEY as string; } catch (e) {}
-  if (!apiKey) {
-    try { apiKey = (import.meta as any).env.VITE_GIGACHAT_API_KEY; } catch (e) {}
-  }
-  return apiKey;
-}
-
-let gigaChatToken = '';
-let gigaChatTokenExpiresAt = 0;
-
-async function getGigaChatAccessToken(authKey: string): Promise<string> {
-  if (gigaChatToken && Date.now() < gigaChatTokenExpiresAt) {
-    return gigaChatToken;
-  }
-  
-  const response = await fetch("https://ngw.devices.sberbank.ru:9443/api/v2/oauth", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Accept": "application/json",
-      "RqUID": crypto.randomUUID(),
-      "Authorization": `Basic ${authKey}`
-    },
-    body: "scope=GIGACHAT_API_PERS"
-  });
-  
-  if (!response.ok) {
-    throw new Error(`GigaChat auth error: ${response.status}`);
-  }
-  
-  const data = await response.json();
-  gigaChatToken = data.access_token;
-  gigaChatTokenExpiresAt = data.expires_at;
-  return gigaChatToken;
-}
-
-async function fallbackToGigaChat(prompt: string, isArray: boolean = false): Promise<string> {
-  const authKey = getGigaChatApiKey();
-  if (!authKey) {
-    throw new Error('GigaChat API key not found. Please add VITE_GIGACHAT_API_KEY to your environment variables.');
-  }
-
-  const token = await getGigaChatAccessToken(authKey);
-
-  const systemPrompt = isArray 
-    ? "You are a helpful automotive expert. You must output ONLY a valid JSON array of strings. Do not include any markdown formatting like ```json, just the raw array."
-    : "You are a helpful automotive expert. You must output ONLY a valid JSON object. Do not include any markdown formatting like ```json, just the raw object.";
-
-  const response = await fetch("https://gigachat.devices.sberbank.ru/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: JSON.stringify({
-      model: "GigaChat",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.1
-    })
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(`GigaChat API error: ${response.status} - ${errorText}`);
-  }
-
-  const data = await response.json();
-  let text = data.choices[0].message.content.trim();
-  
-  if (text.startsWith('```json')) {
-    text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '');
-  } else if (text.startsWith('```')) {
-    text = text.replace(/^```\n?/, '').replace(/\n?```$/, '');
-  }
-  
-  return text.trim();
-}
 
 export async function suggestCarBodies(brand: string, model: string, year: string): Promise<string[]> {
   const apiKey = getApiKey();
@@ -169,14 +87,8 @@ Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`;
     if (!text) return [];
     return JSON.parse(text) as string[];
   } catch (error) {
-    console.warn("Gemini failed, falling back to GigaChat...", error);
-    try {
-      const text = await fallbackToGigaChat(prompt, true);
-      return JSON.parse(text) as string[];
-    } catch (gcError) {
-      console.error("GigaChat also failed", gcError);
-      return [];
-    }
+    console.error("Gemini failed", error);
+    return [];
   }
 }
 
@@ -205,14 +117,8 @@ Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`;
     if (!text) return [];
     return JSON.parse(text) as string[];
   } catch (error) {
-    console.warn("Gemini failed, falling back to GigaChat...", error);
-    try {
-      const text = await fallbackToGigaChat(prompt, true);
-      return JSON.parse(text) as string[];
-    } catch (gcError) {
-      console.error("GigaChat also failed", gcError);
-      return [];
-    }
+    console.error("Gemini failed", error);
+    return [];
   }
 }
 
@@ -241,14 +147,8 @@ Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0
     if (!text) return [];
     return JSON.parse(text) as string[];
   } catch (error) {
-    console.warn("Gemini failed, falling back to GigaChat...", error);
-    try {
-      const text = await fallbackToGigaChat(prompt, true);
-      return JSON.parse(text) as string[];
-    } catch (gcError) {
-      console.error("GigaChat also failed", gcError);
-      return [];
-    }
+    console.error("Gemini failed", error);
+    return [];
   }
 }
 
