@@ -63,14 +63,30 @@ function getApiKey() {
 
 
 async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
+  const originalModel = params.model;
+  
   for (let i = 0; i < retries; i++) {
     try {
       return await ai.models.generateContent(params);
     } catch (error: any) {
-      if (i === retries - 1) throw error;
-      const isQuotaError = error.message?.includes('429') || error.message?.includes('quota');
+      const isQuotaError = error.message?.includes('429') || 
+                          error.message?.includes('quota') || 
+                          error.message?.includes('RESOURCE_EXHAUSTED');
+      
       if (isQuotaError) {
-        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+        // If we are using the primary model (Gemini 3) and hit a quota, 
+        // try switching to the fallback model (Gemini 2.5)
+        if (params.model === 'gemini-3-flash-preview') {
+          console.log('Gemini 3 quota exceeded, falling back to Gemini 2.5');
+          params.model = 'gemini-2.5-flash';
+          // Reset retry counter for the new model or just continue
+          return await ai.models.generateContent(params);
+        }
+
+        if (i === retries - 1) throw error;
+        
+        // If already on fallback or still hitting limits, wait and retry
+        await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1)));
         continue;
       }
       throw error;
@@ -87,7 +103,7 @@ Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`;
 
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -117,7 +133,7 @@ Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`;
 
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -147,7 +163,7 @@ Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0
 
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -192,7 +208,7 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
 
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
@@ -240,7 +256,7 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
 
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-2.5-flash',
+      model: 'gemini-3-flash-preview',
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
