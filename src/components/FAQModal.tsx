@@ -27,13 +27,13 @@ export default function FAQModal({ isOpen, onClose }: FAQModalProps) {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative w-full max-w-md overflow-hidden"
           >
-            <Card className="border-none shadow-2xl bg-white dark:bg-zinc-900">
-              <CardHeader className="relative pb-2">
+            <Card className="border-none shadow-2xl bg-white dark:bg-zinc-900 flex flex-col max-h-[90vh]">
+              <CardHeader className="relative pb-2 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={onClose}
-                  className="absolute right-4 top-4 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                  className="absolute right-4 top-4 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 z-10"
                 >
                   <X size={20} />
                 </Button>
@@ -43,7 +43,7 @@ export default function FAQModal({ isOpen, onClose }: FAQModalProps) {
                 <CardTitle className="text-2xl font-display font-bold">Часто задаваемые вопросы</CardTitle>
                 <CardDescription>Помощь по работе сервиса MasloMARKET AI</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6 pt-4">
+              <CardContent className="space-y-6 pt-4 overflow-y-auto">
                 <div className="space-y-4">
                   <div className="flex gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
                     <div className="flex-shrink-0 w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
