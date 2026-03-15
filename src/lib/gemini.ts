@@ -223,15 +223,18 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
   
   let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
-2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data contains exact volumes, OEM specifications, and factory viscosities.
+2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this specific vehicle.
 <ravenol_data>
 ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
 </ravenol_data>
-3. TASK: 
-   - First, confirm the car identity (Brand, Model, Year, Engine) using BOTH the VIN and the ravenol_data.
-   - If ravenol_data contains multiple options, pick the one that matches the VIN/Hint best.
-   - Extract exact volumes, OEM specifications, and factory viscosities.
-4. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
+3. MANDATORY TASK: 
+   - You MUST identify the car EXACTLY as it is written in the <ravenol_data>. 
+   - If <ravenol_data> says it is a "BMW 2 Series Gran Coupe", you MUST return "BMW" and "2 Series Gran Coupe", even if you think it should be something else.
+   - Extract exact volumes, OEM specifications, and factory viscosities from the <ravenol_data>.
+4. RECOMMENDATIONS:
+   - Provide recommendations based on the factory data.
+   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}.
+   - Recommend Ravenol (primary), Motul, Bardahl.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
@@ -291,16 +294,20 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
 
   let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 Vehicle: ${query}.
-1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
+1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this vehicle.
 <ravenol_data>
 ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.ravenol.ru for this car.'}
 </ravenol_data>
-2. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
-3. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
+2. MANDATORY TASK: 
+   - You MUST identify the car EXACTLY as it is written in the <ravenol_data>.
+   - Extract exact volumes, OEM specifications, and factory viscosities from the <ravenol_data>.
+3. RECOMMENDATIONS:
+   - Provide recommendations based on the factory data.
+   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}.
+   - Recommend Ravenol (primary), Motul, Bardahl.
 4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
 5. NO Liqui Moly.
-6. Conditions: ${mileage || ''} ${conditions || ''}.
-7. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
+6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
   onStatusChange?.('Анализ данных...');
   try {

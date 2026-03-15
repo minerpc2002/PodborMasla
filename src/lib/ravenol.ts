@@ -6,46 +6,59 @@ export async function fetchRavenolData(query: string, hint?: string): Promise<st
     if (!searchRes.ok) return null;
     const searchHtml = await searchRes.text();
 
-    // 2. Extract the car page URLs
-    const matches = Array.from(searchHtml.matchAll(/<a href="(\/[0-9]+-[a-z-]+\/[^"]+)" class="ravwidg-list-link">/g));
-    if (matches.length === 0) return null;
+    let carHtml = '';
     
-    // If there are multiple results and we have a hint, try to find the best match
-    let bestMatch = matches[0][1];
-    if (matches.length > 1 && hint) {
-      const hintLower = hint.toLowerCase();
-      const hintWords = hintLower.split(' ').filter(word => word.length > 2);
+    // Check if this is already a car page (redirected)
+    if (searchHtml.includes('ravwidg-results') || searchHtml.includes('ravwidg-car-info') || searchHtml.includes('ravwidg-unit-title')) {
+      carHtml = searchHtml;
+    } else {
+      // 2. Extract the car page URLs from search results
+      const matches = Array.from(searchHtml.matchAll(/<a href="(\/[0-9]+-[a-z-]+\/[^"]+)" class="ravwidg-list-link">/g));
       
-      let maxMatches = 0;
-      for (const m of matches) {
-        const linkText = m[0].toLowerCase();
-        const matchCount = hintWords.filter(word => linkText.includes(word)).length;
+      if (matches.length === 0) return null;
+      
+      // If there are multiple results and we have a hint, try to find the best match
+      let bestMatch = matches[0][1];
+      if (matches.length > 1 && hint) {
+        const hintLower = hint.toLowerCase();
+        const hintWords = hintLower.split(' ').filter(word => word.length > 2);
         
-        if (matchCount > maxMatches) {
-          maxMatches = matchCount;
-          bestMatch = m[1];
+        let maxMatches = 0;
+        for (const m of matches) {
+          const linkText = m[0].toLowerCase();
+          const matchCount = hintWords.filter(word => linkText.includes(word)).length;
+          
+          if (matchCount > maxMatches) {
+            maxMatches = matchCount;
+            bestMatch = m[1];
+          }
         }
+        
+        console.log(`Ravenol search for "${query}" returned ${matches.length} results. Hint: "${hint}". Picked: ${bestMatch}`);
       }
-      
-      console.log(`Ravenol search for "${query}" returned ${matches.length} results. Hint: "${hint}". Picked: ${bestMatch}`);
+
+      const carUrl = `https://podbor.ravenol.ru${bestMatch}`;
+
+      // 3. Fetch the car page via proxy
+      const carRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(carUrl)}`);
+      if (!carRes.ok) return null;
+      carHtml = await carRes.text();
     }
-
-    const carUrl = `https://podbor.ravenol.ru${bestMatch}`;
-
-    // 3. Fetch the car page via proxy
-    const carRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(carUrl)}`);
-    if (!carRes.ok) return null;
-    const carHtml = await carRes.text();
 
     // 4. Strip HTML tags to reduce token usage
     const parser = new DOMParser();
     const doc = parser.parseFromString(carHtml, 'text/html');
     
-    // Extract text from the main content area if possible, or just body
+    // Try to get the car title specifically
+    const title = doc.querySelector('.ravwidg-car-title')?.textContent || 
+                  doc.querySelector('h1')?.textContent || 
+                  '';
+
+    // Extract text from the main content area
     const content = doc.body.innerText || doc.body.textContent || '';
     
     // Clean up excessive whitespace
-    const cleanText = content.replace(/\s+/g, ' ').trim();
+    const cleanText = `${title}\n${content}`.replace(/\s+/g, ' ').trim();
     
     return cleanText;
   } catch (error) {
