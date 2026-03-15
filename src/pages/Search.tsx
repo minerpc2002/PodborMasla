@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search as SearchIcon, ScanLine, Loader2, Settings2 } from 'lucide-react';
+import { Search as SearchIcon, ScanLine, Loader2, Settings2, Sparkles, ChevronRight, Info } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
@@ -8,6 +8,7 @@ import { Select } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { searchByVin, searchByCarDetails, suggestCarBodies, suggestCarModels, suggestCarEngines } from '../lib/gemini';
 import { useAppStore } from '../store/useAppStore';
+import { motion, AnimatePresence } from 'motion/react';
 
 const POPULAR_BRANDS = [
   'Toyota', 'Nissan', 'Honda', 'Mazda', 'Subaru', 'Mitsubishi', 'Suzuki', 'Lexus', 'Infiniti', 'Acura',
@@ -45,68 +46,44 @@ export default function Search() {
   const [engineSuggestions, setEngineSuggestions] = useState<string[]>([]);
   const [isLoadingEngines, setIsLoadingEngines] = useState(false);
 
-  useEffect(() => {
-    if (brand && brand.length >= 2) {
-      const fetchModels = async () => {
-        setIsLoadingModels(true);
-        try {
-          const models = await suggestCarModels(brand);
-          setModelSuggestions(models);
-        } catch (e) {
-          console.error('Failed to fetch model suggestions', e);
-        } finally {
-          setIsLoadingModels(false);
-        }
-      };
-
-      const timer = setTimeout(fetchModels, 800);
-      return () => clearTimeout(timer);
-    } else {
-      setModelSuggestions([]);
+  const fetchModels = async () => {
+    if (!brand) return;
+    setIsLoadingModels(true);
+    try {
+      const models = await suggestCarModels(brand);
+      setModelSuggestions(models);
+    } catch (e) {
+      console.error('Failed to fetch model suggestions', e);
+    } finally {
+      setIsLoadingModels(false);
     }
-  }, [brand]);
+  };
 
-  useEffect(() => {
-    if (brand && model && year && year.length === 4) {
-      const fetchBodies = async () => {
-        setIsLoadingBodies(true);
-        try {
-          const bodies = await suggestCarBodies(brand, model, year);
-          setBodySuggestions(bodies);
-        } catch (e) {
-          console.error('Failed to fetch body suggestions', e);
-        } finally {
-          setIsLoadingBodies(false);
-        }
-      };
-
-      const timer = setTimeout(fetchBodies, 800);
-      return () => clearTimeout(timer);
-    } else {
-      setBodySuggestions([]);
+  const fetchBodies = async () => {
+    if (!brand || !model || !year) return;
+    setIsLoadingBodies(true);
+    try {
+      const bodies = await suggestCarBodies(brand, model, year);
+      setBodySuggestions(bodies);
+    } catch (e) {
+      console.error('Failed to fetch body suggestions', e);
+    } finally {
+      setIsLoadingBodies(false);
     }
-  }, [brand, model, year]);
+  };
 
-  useEffect(() => {
-    if (brand && model && year && year.length === 4 && body) {
-      const fetchEngines = async () => {
-        setIsLoadingEngines(true);
-        try {
-          const engines = await suggestCarEngines(brand, model, year, body);
-          setEngineSuggestions(engines);
-        } catch (e) {
-          console.error('Failed to fetch engine suggestions', e);
-        } finally {
-          setIsLoadingEngines(false);
-        }
-      };
-
-      const timer = setTimeout(fetchEngines, 800);
-      return () => clearTimeout(timer);
-    } else {
-      setEngineSuggestions([]);
+  const fetchEngines = async () => {
+    if (!brand || !model || !year || !body) return;
+    setIsLoadingEngines(true);
+    try {
+      const engines = await suggestCarEngines(brand, model, year, body);
+      setEngineSuggestions(engines);
+    } catch (e) {
+      console.error('Failed to fetch engine suggestions', e);
+    } finally {
+      setIsLoadingEngines(false);
     }
-  }, [brand, model, year, body]);
+  };
 
   // VIN Search State
   const [vin, setVin] = useState('');
@@ -174,7 +151,11 @@ export default function Search() {
   };
 
   const renderCommonParams = () => (
-    <div className="space-y-4 pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800">
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-4 pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800"
+    >
       <h3 className="text-sm font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
         <Settings2 size={16} />
         Уточняющие параметры (опционально)
@@ -182,7 +163,7 @@ export default function Search() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Пробег</label>
-          <Select value={mileage} onChange={(e) => setMileage(e.target.value)}>
+          <Select value={mileage} onChange={(e) => setMileage(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
             <option value="">Не указан</option>
             <option value="До 50 000 км">До 50 000 км</option>
             <option value="50 000 - 100 000 км">50 000 - 100 000 км</option>
@@ -192,7 +173,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Условия эксплуатации</label>
-          <Select value={conditions} onChange={(e) => setConditions(e.target.value)}>
+          <Select value={conditions} onChange={(e) => setConditions(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
             <option value="">Обычные</option>
             <option value="Город (пробки)">Город (пробки)</option>
             <option value="Трасса">Трасса</option>
@@ -202,184 +183,279 @@ export default function Search() {
           </Select>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-10">
-      <div className="space-y-2">
+      <motion.div 
+        initial={{ opacity: 0, x: -20 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="space-y-2"
+      >
         <h1 className="text-3xl font-bold tracking-tight">Выбор авто</h1>
         <p className="text-zinc-500 dark:text-zinc-400">
           Укажите параметры или введите VIN для точного подбора
         </p>
+      </motion.div>
+
+      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50 flex gap-3 items-start">
+        <Info className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size={18} />
+        <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+          Для корректной работы ИИ подбора и обхода региональных ограничений, используйте приложение для смены региона (VPN).
+        </p>
       </div>
 
       <Tabs defaultValue={defaultTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="manual" className="flex items-center gap-1.5">
+        <TabsList className="grid w-full grid-cols-2 mb-4 bg-zinc-100/50 dark:bg-zinc-900/50 p-1 rounded-2xl">
+          <TabsTrigger value="manual" className="flex items-center gap-1.5 rounded-xl transition-all">
             По автомобилю
             <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-[9px] font-bold uppercase tracking-wider rounded-md">
               Beta
             </span>
           </TabsTrigger>
-          <TabsTrigger value="vin">По VIN коду</TabsTrigger>
+          <TabsTrigger value="vin" className="rounded-xl transition-all">По VIN коду</TabsTrigger>
         </TabsList>
         
-        <TabsContent value="manual">
-          <Card className="border-none shadow-sm">
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Марка автомобиля</label>
-                <Input 
-                  list="brands-list"
-                  placeholder="Например: Toyota" 
-                  value={brand}
-                  onChange={(e) => setBrand(e.target.value)}
-                  disabled={isSearchingManual}
-                />
-                <datalist id="brands-list">
-                  {POPULAR_BRANDS.map(b => <option key={b} value={b} />)}
-                </datalist>
-              </div>
+        <AnimatePresence mode="wait">
+          <TabsContent value="manual" key="manual">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="border-none shadow-xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden">
+                <CardContent className="pt-6 space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Марка автомобиля</label>
+                    <Input 
+                      list="brands-list"
+                      placeholder="Например: Toyota" 
+                      value={brand}
+                      onChange={(e) => setBrand(e.target.value)}
+                      disabled={isSearchingManual}
+                      className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                    <datalist id="brands-list">
+                      {POPULAR_BRANDS.map(b => <option key={b} value={b} />)}
+                    </datalist>
+                  </div>
 
-              <div className="space-y-2 relative">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  Модель
-                  {isLoadingModels && <Loader2 className="h-3 w-3 animate-spin text-zinc-400" />}
-                </label>
-                <Input 
-                  list="models-list"
-                  placeholder="Например: Camry" 
-                  value={model}
-                  onChange={(e) => setModel(e.target.value)}
-                  disabled={isSearchingManual}
-                />
-                <datalist id="models-list">
-                  {modelSuggestions.map(m => <option key={m} value={m} />)}
-                </datalist>
-              </div>
+                  <div className="space-y-2 relative">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        Модель
+                        {isLoadingModels && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                      </label>
+                      {brand && !modelSuggestions.length && !isLoadingModels && (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={fetchModels}
+                          className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          <Sparkles size={10} />
+                          Автопоиск
+                        </motion.button>
+                      )}
+                    </div>
+                    <Input 
+                      list="models-list"
+                      placeholder="Например: Camry" 
+                      value={model}
+                      onChange={(e) => setModel(e.target.value)}
+                      disabled={isSearchingManual}
+                      className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                    <datalist id="models-list">
+                      {modelSuggestions.map(m => <option key={m} value={m} />)}
+                    </datalist>
+                  </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Год <span className="text-zinc-400 font-normal">(опц.)</span></label>
-                  <Input 
-                    type="number"
-                    placeholder="Например: 2020" 
-                    value={year}
-                    onChange={(e) => setYear(e.target.value)}
-                    disabled={isSearchingManual}
-                    min={1990}
-                    max={2026}
-                  />
-                </div>
-                <div className="space-y-2 relative">
-                  <label className="text-sm font-medium flex items-center gap-2">
-                    Кузов
-                    {isLoadingBodies && <Loader2 className="h-3 w-3 animate-spin text-zinc-400" />}
-                  </label>
-                  <Input 
-                    list="body-list"
-                    placeholder="Например: XV70" 
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    disabled={isSearchingManual}
-                  />
-                  <datalist id="body-list">
-                    {bodySuggestions.map(b => <option key={b} value={b} />)}
-                  </datalist>
-                </div>
-              </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Год <span className="text-zinc-400 font-normal">(опц.)</span></label>
+                      <Input 
+                        type="number"
+                        placeholder="2020" 
+                        value={year}
+                        onChange={(e) => setYear(e.target.value)}
+                        disabled={isSearchingManual}
+                        min={1990}
+                        max={2026}
+                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
+                    </div>
+                    <div className="space-y-2 relative">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                          Кузов
+                          {isLoadingBodies && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                        </label>
+                        {brand && model && year.length === 4 && !bodySuggestions.length && !isLoadingBodies && (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={fetchBodies}
+                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            <Sparkles size={10} />
+                            Автопоиск
+                          </motion.button>
+                        )}
+                      </div>
+                      <Input 
+                        list="body-list"
+                        placeholder="XV70" 
+                        value={body}
+                        onChange={(e) => setBody(e.target.value)}
+                        disabled={isSearchingManual}
+                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
+                      <datalist id="body-list">
+                        {bodySuggestions.map(b => <option key={b} value={b} />)}
+                      </datalist>
+                    </div>
+                  </div>
 
-              <div className="space-y-2 relative">
-                <label className="text-sm font-medium flex items-center gap-2">
-                  Двигатель <span className="text-zinc-400 font-normal">(опц.)</span>
-                  {isLoadingEngines && <Loader2 className="h-3 w-3 animate-spin text-zinc-400" />}
-                </label>
-                <Input 
-                  list="engines-list"
-                  placeholder="Например: 2.5 или 2AR-FE" 
-                  value={engine}
-                  onChange={(e) => setEngine(e.target.value)}
-                  disabled={isSearchingManual}
-                />
-                <datalist id="engines-list">
-                  {engineSuggestions.map(e => <option key={e} value={e} />)}
-                </datalist>
-              </div>
+                  <div className="space-y-2 relative">
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        Двигатель <span className="text-zinc-400 font-normal">(опц.)</span>
+                        {isLoadingEngines && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                      </label>
+                      {brand && model && body && !engineSuggestions.length && !isLoadingEngines && (
+                        <motion.button
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={fetchEngines}
+                          className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                        >
+                          <Sparkles size={10} />
+                          Автопоиск
+                        </motion.button>
+                      )}
+                    </div>
+                    <Input 
+                      list="engines-list"
+                      placeholder="2.5 или 2AR-FE" 
+                      value={engine}
+                      onChange={(e) => setEngine(e.target.value)}
+                      disabled={isSearchingManual}
+                      className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                    />
+                    <datalist id="engines-list">
+                      {engineSuggestions.map(e => <option key={e} value={e} />)}
+                    </datalist>
+                  </div>
 
-              {renderCommonParams()}
+                  {renderCommonParams()}
 
-              {manualError && <p className="text-sm text-red-500 mt-2">{manualError}</p>}
-              <p className="text-xs text-zinc-500">
-                ИИ проанализирует данные и подберет жидкости для любого автомобиля мирового рынка.
-              </p>
+                  <AnimatePresence>
+                    {manualError && (
+                      <motion.p 
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="text-sm text-red-500 font-medium"
+                      >
+                        {manualError}
+                      </motion.p>
+                    )}
+                  </AnimatePresence>
+                  
+                  <Button 
+                    className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-lg font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95" 
+                    size="lg"
+                    disabled={!brand || !model || !body || isSearchingManual}
+                    onClick={handleManualSearch}
+                  >
+                    {isSearchingManual ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Поиск в базе...
+                      </>
+                    ) : (
+                      <>
+                        <SearchIcon className="mr-2 h-5 w-5" />
+                        Подобрать масла
+                        <ChevronRight className="ml-2 h-5 w-5 opacity-50" />
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+          
+          <TabsContent value="vin" key="vin">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Card className="border-none shadow-xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden">
+                <CardContent className="pt-6 space-y-5">
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                      VIN код автомобиля
+                    </label>
+                    <Input 
+                      placeholder="WVGZZZ..." 
+                      value={vin}
+                      onChange={(e) => setVin(e.target.value.toUpperCase())}
+                      disabled={isSearchingVin}
+                      className="h-14 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-purple-500 uppercase font-mono text-lg tracking-wider transition-all"
+                      maxLength={17}
+                    />
+                    <AnimatePresence>
+                      {vinError && (
+                        <motion.p 
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="text-sm text-red-500 font-medium"
+                        >
+                          {vinError}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                    <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/50">
+                      <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed flex gap-2">
+                        <ScanLine size={14} className="flex-shrink-0 mt-0.5" />
+                        ИИ проанализирует VIN и автоматически подберет подходящие жидкости.
+                      </p>
+                    </div>
+                  </div>
 
-              <Button 
-                className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white" 
-                size="lg"
-                disabled={!brand || !model || !body || isSearchingManual}
-                onClick={handleManualSearch}
-              >
-                {isSearchingManual ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Поиск в базе...
-                  </>
-                ) : (
-                  <>
-                    <SearchIcon className="mr-2 h-5 w-5" />
-                    Подобрать масла
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="vin">
-          <Card className="border-none shadow-sm">
-            <CardContent className="pt-6 space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  VIN код автомобиля
-                </label>
-                <Input 
-                  placeholder="WVGZZZ..." 
-                  value={vin}
-                  onChange={(e) => setVin(e.target.value.toUpperCase())}
-                  disabled={isSearchingVin}
-                  className="uppercase font-mono"
-                  maxLength={17}
-                />
-                {vinError && <p className="text-sm text-red-500">{vinError}</p>}
-                <p className="text-xs text-zinc-500">
-                  ИИ проанализирует VIN и автоматически подберет подходящие жидкости.
-                </p>
-              </div>
+                  {renderCommonParams()}
 
-              {renderCommonParams()}
-
-              <Button 
-                className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white" 
-                size="lg"
-                disabled={!vin || isSearchingVin}
-                onClick={handleVinSearch}
-              >
-                {isSearchingVin ? (
-                  <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    Анализ VIN кода...
-                  </>
-                ) : (
-                  <>
-                    <ScanLine className="mr-2 h-5 w-5" />
-                    Найти по VIN
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        </TabsContent>
+                  <Button 
+                    className="w-full mt-4 bg-purple-600 hover:bg-purple-700 text-white rounded-2xl h-14 text-lg font-bold shadow-lg shadow-purple-500/20 transition-all active:scale-95" 
+                    size="lg"
+                    disabled={!vin || isSearchingVin}
+                    onClick={handleVinSearch}
+                  >
+                    {isSearchingVin ? (
+                      <>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                        Анализ VIN кода...
+                      </>
+                    ) : (
+                      <>
+                        <ScanLine className="mr-2 h-5 w-5" />
+                        Найти по VIN
+                        <ChevronRight className="ml-2 h-5 w-5 opacity-50" />
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </TabsContent>
+        </AnimatePresence>
       </Tabs>
     </div>
   );
