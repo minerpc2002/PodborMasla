@@ -14,7 +14,8 @@ export interface Product {
 export interface Recommendation {
   unit: string;
   fluid_type: FluidType;
-  viscosity: string;
+  factory_viscosity: string;
+  recommended_viscosity: string;
   specification: string;
   approval: string;
   volume_liters: number;

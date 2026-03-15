@@ -76,7 +76,8 @@ const generateCar = (
       {
         unit: 'Двигатель',
         fluid_type: 'engine_oil',
-        viscosity: oilType.split(' ')[0],
+        factory_viscosity: oilType.split(' ')[0],
+        recommended_viscosity: oilType.split(' ')[0],
         specification: 'OEM Spec',
         approval: 'OEM Approval',
         volume_liters: 4.5,
@@ -86,7 +87,8 @@ const generateCar = (
       {
         unit: transmission_type === 'mt' ? 'МКПП' : transmission_type === 'dsg' ? 'РКПП (DSG)' : transmission_type === 'cvt' ? 'Вариатор (CVT)' : 'АКПП',
         fluid_type: transmission_type === 'at' ? 'atf' : transmission_type === 'mt' ? 'mtf' : transmission_type,
-        viscosity: transmission_type === 'mt' ? '75W-90' : transmission_type === 'dsg' ? '75W' : 'ATF/CVTF',
+        factory_viscosity: transmission_type === 'mt' ? '75W-90' : transmission_type === 'dsg' ? '75W' : 'ATF/CVTF',
+        recommended_viscosity: transmission_type === 'mt' ? '75W-90' : transmission_type === 'dsg' ? '75W' : 'ATF/CVTF',
         specification: 'OEM Spec',
         approval: 'OEM Approval',
         volume_liters: transmission_type === 'mt' ? 2.0 : 7.0,

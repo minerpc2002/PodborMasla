@@ -20,14 +20,15 @@ const recommendationSchema = {
   properties: {
     unit: { type: Type.STRING, description: "Название узла на РУССКОМ языке (например: 'Двигатель', 'АКПП', 'Раздаточная коробка', 'Передний мост', 'Задний мост', 'ГУР', 'Антифриз')" },
     fluid_type: { type: Type.STRING },
-    viscosity: { type: Type.STRING },
+    factory_viscosity: { type: Type.STRING, description: "Вязкость, рекомендованная заводом-изготовителем" },
+    recommended_viscosity: { type: Type.STRING, description: "Вязкость, рекомендованная с учетом пробега и условий эксплуатации" },
     specification: { type: Type.STRING },
     approval: { type: Type.STRING },
     volume_liters: { type: Type.NUMBER },
     replacement_interval: { type: Type.STRING, description: "Интервал замены на РУССКОМ языке" },
     products: { type: Type.ARRAY, items: productSchema }
   },
-  required: ["unit", "fluid_type", "viscosity", "specification", "approval", "volume_liters", "replacement_interval", "products"]
+  required: ["unit", "fluid_type", "factory_viscosity", "recommended_viscosity", "specification", "approval", "volume_liters", "replacement_interval", "products"]
 };
 
 const carDataSchema = {
@@ -198,6 +199,9 @@ Identify the exact make, model, year, engine, and transmission.
 Then, provide a complete list of recommended fluids and oils for this specific vehicle.
 Include recommendations for the Engine, Transmission (AT/MT/CVT/DSG), Axles/Differentials (Мосты - front and rear if applicable), Power Steering Fluid (ГУР), Antifreeze/Coolant (Антифриз - must specify color), and Brake fluid.
 For each unit, provide 1-3 specific product recommendations strictly from these brands: 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', 'Moly Green'.
+For each recommendation, you MUST provide two viscosities:
+1. factory_viscosity: The original viscosity specified by the manufacturer for a new vehicle.
+2. recommended_viscosity: The viscosity recommended NOW, taking into account the vehicle's age, mileage, and driving conditions. If conditions are standard, it might be the same as factory.
 Return the response as a JSON object matching the provided schema.
 Generate a unique random string for the 'id' field of the car and each product.
 
@@ -246,6 +250,9 @@ Model: ${model}`;
   prompt += `\n\nProvide a complete list of recommended fluids and oils for this specific vehicle.
 Include recommendations for the Engine, Transmission (AT/MT/CVT/DSG), Axles/Differentials (Мосты - front and rear if applicable), Power Steering Fluid (ГУР), Antifreeze/Coolant (Антифриз - must specify color), and Brake fluid.
 For each unit, provide 1-3 specific product recommendations strictly from these brands: 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', 'Moly Green'.
+For each recommendation, you MUST provide two viscosities:
+1. factory_viscosity: The original viscosity specified by the manufacturer for a new vehicle.
+2. recommended_viscosity: The viscosity recommended NOW, taking into account the vehicle's age, mileage, and driving conditions. If conditions are standard, it might be the same as factory.
 Return the response as a JSON object matching the provided schema.
 Generate a unique random string for the 'id' field of the car and each product.
 

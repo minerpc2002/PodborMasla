@@ -133,12 +133,18 @@ export default function Result() {
                     <p className="font-medium">{rec.approval}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-500 dark:text-zinc-400 mb-1">Вязкость</p>
-                    <p className="font-medium">{rec.viscosity}</p>
-                  </div>
-                  <div className="col-span-2">
                     <p className="text-zinc-500 dark:text-zinc-400 mb-1">Интервал замены</p>
                     <p className="font-medium">{rec.replacement_interval}</p>
+                  </div>
+                  <div className="col-span-2 grid grid-cols-2 gap-4 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100/50 dark:border-blue-900/20">
+                    <div>
+                      <p className="text-blue-600/70 dark:text-blue-400/70 text-[10px] uppercase font-bold tracking-wider mb-1">Заводская вязкость</p>
+                      <p className="font-bold text-blue-900 dark:text-blue-100">{rec.factory_viscosity}</p>
+                    </div>
+                    <div>
+                      <p className="text-emerald-600/70 dark:text-emerald-400/70 text-[10px] uppercase font-bold tracking-wider mb-1">Рекомендованная ИИ</p>
+                      <p className="font-bold text-emerald-700 dark:text-emerald-400">{rec.recommended_viscosity}</p>
+                    </div>
                   </div>
                 </div>
 
