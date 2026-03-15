@@ -1,5 +1,6 @@
 import { GoogleGenAI, Type } from '@google/genai';
 import { CarData } from '../types';
+import { decodeVin } from './vinApi';
 
 const productSchema = {
   type: Type.OBJECT,
@@ -189,31 +190,36 @@ Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0
   }
 }
 
-export async function searchByVin(vin: string, mileage?: string, conditions?: string): Promise<CarData> {
+export async function searchByVin(vin: string, mileage?: string, conditions?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
-  let prompt = `You are an expert automotive fluid specialist.
-Decode the following VIN: ${vin}.
-Identify the exact make, model, year, engine, and transmission.
-Then, provide a complete list of recommended fluids and oils for this specific vehicle.
-Include recommendations for the Engine, Transmission (AT/MT/CVT/DSG), Axles/Differentials (Мосты - front and rear if applicable), Power Steering Fluid (ГУР), Antifreeze/Coolant (Антифриз - must specify color), and Brake fluid.
-For each unit, provide 1-3 specific product recommendations strictly from these brands: 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', 'Moly Green'.
-For each recommendation, you MUST provide two viscosities:
-1. factory_viscosity: The original viscosity specified by the manufacturer for a new vehicle.
-2. recommended_viscosity: The viscosity recommended NOW, taking into account the vehicle's age, mileage, and driving conditions. If conditions are standard, it might be the same as factory.
-Return the response as a JSON object matching the provided schema.
-Generate a unique random string for the 'id' field of the car and each product.
-
-IMPORTANT: ALL output text, including descriptions, notes, unit names, and categories MUST be in Russian language.`;
-
-  if (mileage || conditions) {
-    prompt += `\n\nConsider the following vehicle conditions for your oil viscosity and product recommendations:`;
-    if (mileage) prompt += `\n- Mileage: ${mileage}`;
-    if (conditions) prompt += `\n- Driving Conditions: ${conditions}`;
-    prompt += `\nAdjust the recommended viscosity (e.g., thicker oil for high mileage if applicable) and replacement intervals based on these conditions.`;
+  onStatusChange?.('Декодирование VIN...');
+  const vehicle = await decodeVin(vin);
+  
+  let prompt = `You are an expert automotive fluid specialist.`;
+  
+  if (vehicle) {
+    prompt += `
+Identify vehicle: ${vehicle.make} ${vehicle.model} ${vehicle.year}, Engine: ${vehicle.engine}.
+Provide recommended fluids/oils (Engine, Transmission, Axles, Antifreeze, Brake fluid).
+Use Google Search to verify specifications.
+Strictly recommend: 'Ravenol', 'Motul', 'BARDAHL'. NO 'Liqui Moly'.
+Return JSON matching schema.`;
+  } else {
+    prompt += `
+Decode VIN: ${vin}. Identify exact vehicle.
+Provide recommended fluids/oils (Engine, Transmission, Axles, Antifreeze, Brake fluid).
+Use Google Search to verify specifications.
+Strictly recommend: 'Ravenol', 'Motul', 'BARDAHL'. NO 'Liqui Moly'.
+Return JSON matching schema.`;
   }
 
+  if (mileage || conditions) {
+    prompt += `\nConditions: ${mileage || ''} ${conditions || ''}. Adjust viscosity if needed.`;
+  }
+
+  onStatusChange?.('Поиск рекомендаций...');
   try {
     const response = await callGeminiWithRetry(ai, {
       model: 'gemini-3-flash-preview',
@@ -222,49 +228,39 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
         temperature: 0.2,
+        tools: [{ googleSearch: {} }],
       }
     });
 
     const text = response.text;
     if (!text) throw new Error('Пустой ответ от ИИ');
-    return JSON.parse(text) as CarData;
+    const carData = JSON.parse(text) as CarData;
+    if (carData.id === 'INVALID_VIN') {
+      throw new Error('VIN-код не найден или недействителен');
+    }
+    return carData;
   } catch (error) {
     console.error("Gemini failed", error);
     throw error;
   }
 }
 
-export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, mileage?: string, conditions?: string): Promise<CarData> {
+export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, mileage?: string, conditions?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
   let prompt = `You are an expert automotive fluid specialist.
-Identify the exact vehicle based on the following details:
-Make: ${brand}
-Model: ${model}`;
-  
-  if (year) prompt += `\nYear: ${year}`;
-  if (body) prompt += `\nBody/Generation: ${body}`;
-  if (engine) prompt += `\nEngine: ${engine}`;
-
-  prompt += `\n\nProvide a complete list of recommended fluids and oils for this specific vehicle.
-Include recommendations for the Engine, Transmission (AT/MT/CVT/DSG), Axles/Differentials (Мосты - front and rear if applicable), Power Steering Fluid (ГУР), Antifreeze/Coolant (Антифриз - must specify color), and Brake fluid.
-For each unit, provide 1-3 specific product recommendations strictly from these brands: 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', 'Moly Green'.
-For each recommendation, you MUST provide two viscosities:
-1. factory_viscosity: The original viscosity specified by the manufacturer for a new vehicle.
-2. recommended_viscosity: The viscosity recommended NOW, taking into account the vehicle's age, mileage, and driving conditions. If conditions are standard, it might be the same as factory.
-Return the response as a JSON object matching the provided schema.
-Generate a unique random string for the 'id' field of the car and each product.
-
-IMPORTANT: ALL output text, including descriptions, notes, unit names, and categories MUST be in Russian language.`;
+Identify vehicle: ${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}.
+Provide recommended fluids/oils (Engine, Transmission, Axles, Antifreeze, Brake fluid).
+Use Google Search to verify specifications.
+Strictly recommend: 'Ravenol', 'Motul', 'BARDAHL'. NO 'Liqui Moly'.
+Return JSON matching schema.`;
 
   if (mileage || conditions) {
-    prompt += `\n\nConsider the following vehicle conditions for your oil viscosity and product recommendations:`;
-    if (mileage) prompt += `\n- Mileage: ${mileage}`;
-    if (conditions) prompt += `\n- Driving Conditions: ${conditions}`;
-    prompt += `\nAdjust the recommended viscosity (e.g., thicker oil for high mileage if applicable) and replacement intervals based on these conditions.`;
+    prompt += `\nConditions: ${mileage || ''} ${conditions || ''}. Adjust viscosity if needed.`;
   }
 
+  onStatusChange?.('Поиск рекомендаций...');
   try {
     const response = await callGeminiWithRetry(ai, {
       model: 'gemini-3-flash-preview',
@@ -273,6 +269,7 @@ IMPORTANT: ALL output text, including descriptions, notes, unit names, and categ
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
         temperature: 0.2,
+        tools: [{ googleSearch: {} }],
       }
     });
 

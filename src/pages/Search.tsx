@@ -33,6 +33,7 @@ export default function Search() {
   const [engine, setEngine] = useState('');
   const [isSearchingManual, setIsSearchingManual] = useState(false);
   const [manualError, setManualError] = useState('');
+  const [searchStatus, setSearchStatus] = useState('');
 
   // Body Suggestions State
   const [bodySuggestions, setBodySuggestions] = useState<string[]>([]);
@@ -108,9 +109,10 @@ export default function Search() {
     
     setIsSearchingManual(true);
     setManualError('');
+    setSearchStatus('Инициализация...');
     
     try {
-      const carData = await searchByCarDetails(brand, model, year, body, engine, mileage, conditions);
+      const carData = await searchByCarDetails(brand, model, year, body, engine, mileage, conditions, (status) => setSearchStatus(status));
       recordSearch();
       addDynamicCar(carData);
       navigate(`/result/${carData.id}`);
@@ -119,6 +121,7 @@ export default function Search() {
       setManualError(error.message || 'Не удалось найти данные по этому автомобилю. Проверьте правильность ввода.');
     } finally {
       setIsSearchingManual(false);
+      setSearchStatus('');
     }
   };
 
@@ -136,9 +139,10 @@ export default function Search() {
     
     setIsSearchingVin(true);
     setVinError('');
+    setSearchStatus('Инициализация...');
     
     try {
-      const carData = await searchByVin(vin, mileage, conditions);
+      const carData = await searchByVin(vin, mileage, conditions, (status) => setSearchStatus(status));
       recordSearch();
       addDynamicCar(carData);
       navigate(`/result/${carData.id}`);
@@ -147,6 +151,7 @@ export default function Search() {
       setVinError(error.message || 'Не удалось распознать VIN или найти данные. Попробуйте ручной поиск.');
     } finally {
       setIsSearchingVin(false);
+      setSearchStatus('');
     }
   };
 
@@ -202,7 +207,7 @@ export default function Search() {
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50 flex gap-3 items-start">
         <Info className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size={18} />
         <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
-          Для корректной работы ИИ подбора и обхода региональных ограничений, используйте приложение для смены региона (VPN).
+          Для точного подбора жидкостей, пожалуйста, убедитесь, что вы указали корректные данные или правильный VIN-код.
         </p>
       </div>
 
@@ -374,7 +379,7 @@ export default function Search() {
                     {isSearchingManual ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Поиск в базе...
+                        {searchStatus || 'Поиск в базе...'}
                       </>
                     ) : (
                       <>
@@ -441,7 +446,7 @@ export default function Search() {
                     {isSearchingVin ? (
                       <>
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        Анализ VIN кода...
+                        {searchStatus || 'Анализ VIN кода...'}
                       </>
                     ) : (
                       <>
