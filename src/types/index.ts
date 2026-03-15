@@ -6,6 +6,8 @@ export interface Product {
   product_name: string;
   category: FluidType;
   viscosity: string;
+  base_technology?: string;
+  article_number?: string;
   approvals: string[];
   notes?: string;
   description?: string;

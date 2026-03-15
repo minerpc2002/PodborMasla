@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search as SearchIcon, ScanLine, Loader2, Settings2, Sparkles, ChevronRight, Info } from 'lucide-react';
+import { Search as SearchIcon, ScanLine, Loader2, Settings2, Sparkles, ChevronRight, Info, HelpCircle, X } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
@@ -24,6 +24,9 @@ export default function Search() {
   const { addDynamicCar, canSearch, recordSearch } = useAppStore();
   
   const defaultTab = location.state?.tab || 'manual';
+  
+  // How it works modal
+  const [showHowItWorks, setShowHowItWorks] = useState(false);
   
   // Manual Search State
   const [brand, setBrand] = useState('');
@@ -196,13 +199,90 @@ export default function Search() {
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="space-y-2"
+        className="space-y-2 flex justify-between items-start"
       >
-        <h1 className="text-3xl font-bold tracking-tight">Выбор авто</h1>
-        <p className="text-zinc-500 dark:text-zinc-400">
-          Укажите параметры или введите VIN для точного подбора
-        </p>
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">Выбор авто</h1>
+          <p className="text-zinc-500 dark:text-zinc-400">
+            Укажите параметры или введите VIN для точного подбора
+          </p>
+        </div>
+        <button 
+          onClick={() => setShowHowItWorks(true)}
+          className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-full text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          title="Как это работает?"
+        >
+          <HelpCircle size={24} />
+        </button>
       </motion.div>
+
+      <AnimatePresence>
+        {showHowItWorks && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowHowItWorks(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative"
+            >
+              <button 
+                onClick={() => setShowHowItWorks(false)}
+                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 rounded-full transition-colors"
+              >
+                <X size={20} />
+              </button>
+              
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <Sparkles className="text-blue-500" />
+                Как это работает?
+              </h2>
+              
+              <div className="space-y-4 text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
+                <p>
+                  Наше приложение использует передовые технологии для точного подбора масел и жидкостей для вашего автомобиля.
+                </p>
+                
+                <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl space-y-3 border border-zinc-100 dark:border-zinc-800">
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">1</div>
+                    <p><strong>Сбор данных:</strong> Вы вводите VIN-код или параметры автомобиля.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">2</div>
+                    <p><strong>Поиск в каталоге:</strong> Мы обращаемся к официальным базам данных для получения точных заводских допусков и заправочных объемов.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">3</div>
+                    <p><strong>Анализ нейросетью:</strong> ИИ анализирует полученные данные, учитывает ваш пробег и условия эксплуатации.</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">4</div>
+                    <p><strong>Рекомендации:</strong> Вы получаете список лучших продуктов (Ravenol, Motul, Bardahl), идеально подходящих для вашего авто.</p>
+                  </div>
+                </div>
+                
+                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-4">
+                  Мы гарантируем высокую точность данных благодаря использованию официальных баз и интеллектуальных алгоритмов обработки.
+                </p>
+              </div>
+              
+              <Button 
+                onClick={() => setShowHowItWorks(false)}
+                className="w-full mt-6 rounded-xl h-12 font-semibold"
+              >
+                Понятно, спасибо
+              </Button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50 flex gap-3 items-start">
         <Info className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size={18} />

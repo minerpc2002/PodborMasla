@@ -181,9 +181,21 @@ export default function Result() {
                                       {product.product_name}
                                     </h5>
                                   </div>
-                                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-2 line-clamp-2">
+                                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-2">
                                     {product.description}
                                   </p>
+                                  <div className="grid grid-cols-2 gap-2 mb-3">
+                                    {product.base_technology && (
+                                      <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
+                                        База: <span className="text-zinc-900 dark:text-zinc-100">{product.base_technology}</span>
+                                      </div>
+                                    )}
+                                    {product.article_number && (
+                                      <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
+                                        Артикул: <span className="text-zinc-900 dark:text-zinc-100">{product.article_number}</span>
+                                      </div>
+                                    )}
+                                  </div>
                                   <div className="flex flex-wrap gap-1">
                                     {product.approvals.slice(0, 3).map(app => (
                                       <span key={app} className="text-[10px] px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-300">
@@ -220,9 +232,14 @@ export default function Result() {
         className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-4 flex gap-3 items-start mt-4"
       >
         <Info className="text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" size={20} />
-        <p className="text-sm text-amber-800 dark:text-amber-400 leading-relaxed">
-          Выбор масла и указанные объемы являются справочными. Для более точного подбора рекомендуем обратиться к специалисту. При замене ориентируйтесь на уровень по щупу или контрольному отверстию.
-        </p>
+        <div className="space-y-2">
+          <p className="text-sm text-amber-800 dark:text-amber-400 leading-relaxed">
+            Рекомендация основана на официальных каталогах брендов по состоянию на март 2026. Всегда проверяйте актуальную сервисную книжку автомобиля и консультируйтесь с официальным сервисом. Я не заменяю профессиональную диагностику.
+          </p>
+          <p className="text-xs text-amber-700/70 dark:text-amber-500/70 leading-relaxed">
+            Выбор масла и указанные объемы являются справочными. При замене ориентируйтесь на уровень по щупу или контрольному отверстию.
+          </p>
+        </div>
       </motion.div>
     </motion.div>
   );

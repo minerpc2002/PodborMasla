@@ -7,23 +7,36 @@ export interface DecodedVehicle {
 }
 
 export async function decodeVin(vin: string): Promise<DecodedVehicle | null> {
-  try {
-    const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
-    const data = await response.json();
-    
-    if (data.Results && data.Results[0] && data.Results[0].ErrorCode === '0') {
-      const v = data.Results[0];
-      return {
-        make: v.Make,
-        model: v.Model,
-        year: v.ModelYear,
-        engine: `${v.DisplacementL || ''}L ${v.EngineConfiguration || ''} ${v.FuelTypePrimary || ''}`,
-        transmission: v.TransmissionStyle || v.Transmission || ''
-      };
+  const fetchPromise = (async () => {
+    try {
+      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+      if (!response.ok) return null;
+      const data = await response.json();
+      
+      if (data.Results && data.Results[0] && data.Results[0].ErrorCode === '0') {
+        const v = data.Results[0];
+        return {
+          make: v.Make,
+          model: v.Model,
+          year: v.ModelYear,
+          engine: `${v.DisplacementL || ''}L ${v.EngineConfiguration || ''} ${v.FuelTypePrimary || ''}`,
+          transmission: v.TransmissionStyle || v.Transmission || ''
+        };
+      }
+      return null;
+    } catch (e) {
+      return null;
     }
-    return null;
+  })();
+
+  const timeoutPromise = new Promise<null>((resolve) => {
+    setTimeout(() => resolve(null), 4000); // 4 second hard timeout
+  });
+
+  try {
+    return await Promise.race([fetchPromise, timeoutPromise]);
   } catch (error) {
-    console.error("NHTSA API failed", error);
+    console.error("VIN decoding failed", error);
     return null;
   }
 }

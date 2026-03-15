@@ -1,4 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
+import { fetchRavenolData } from './ravenol';
 import { CarData } from '../types';
 import { decodeVin } from './vinApi';
 
@@ -6,7 +7,7 @@ const productSchema = {
   type: Type.OBJECT,
   properties: {
     id: { type: Type.STRING },
-    brand_name: { type: Type.STRING, description: "Must be 'Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', or 'Moly Green'" },
+    brand_name: { type: Type.STRING, description: "Must be 'Ravenol', 'Motul', 'BARDAHL', or 'Moly Green'" },
     product_name: { type: Type.STRING },
     category: { type: Type.STRING },
     viscosity: { type: Type.STRING },
@@ -71,11 +72,10 @@ const FREE_MODELS = [
 ];
 
 async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
-  let modelIndex = FREE_MODELS.indexOf(params.model);
-  if (modelIndex === -1) modelIndex = 0;
-  
+  let modelIndex = 0;
   let attempt = 0;
-  while (attempt < retries) {
+  
+  while (attempt < retries * FREE_MODELS.length) {
     try {
       params.model = FREE_MODELS[modelIndex];
       return await ai.models.generateContent(params);
@@ -85,19 +85,18 @@ async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<a
                           error.message?.includes('RESOURCE_EXHAUSTED');
       
       if (isQuotaError) {
-        console.warn(`Quota exceeded for ${FREE_MODELS[modelIndex]}. Switching model...`);
+        console.warn(`Лимит исчерпан для ${FREE_MODELS[modelIndex]}. Переключение на следующую модель...`);
         modelIndex = (modelIndex + 1) % FREE_MODELS.length;
         attempt++;
         
-        if (attempt < retries) {
-          // Small delay before retrying with next model
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
-          continue;
-        }
+        // Небольшая задержка перед повтором
+        await new Promise(resolve => setTimeout(resolve, 500));
+        continue;
       }
       throw error;
     }
   }
+  throw new Error('Все доступные модели перегружены. Пожалуйста, попробуйте позже.');
 }
 
 export async function suggestCarBodies(brand: string, model: string, year: string): Promise<string[]> {
@@ -194,40 +193,31 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
-  onStatusChange?.('Декодирование VIN...');
+  onStatusChange?.('Поиск в базе данных...');
   const vehicle = await decodeVin(vin);
   
-  let prompt = `You are an expert automotive fluid specialist.`;
+  const ravenolData = await fetchRavenolData(vin);
   
-  if (vehicle) {
-    prompt += `
-Identify vehicle: ${vehicle.make} ${vehicle.model} ${vehicle.year}, Engine: ${vehicle.engine}.
-Provide recommended fluids/oils (Engine, Transmission, Axles, Antifreeze, Brake fluid).
-Use Google Search to verify specifications.
-Strictly recommend: 'Ravenol', 'Motul', 'BARDAHL'. NO 'Liqui Moly'.
-Return JSON matching schema.`;
-  } else {
-    prompt += `
-Decode VIN: ${vin}. Identify exact vehicle.
-Provide recommended fluids/oils (Engine, Transmission, Axles, Antifreeze, Brake fluid).
-Use Google Search to verify specifications.
-Strictly recommend: 'Ravenol', 'Motul', 'BARDAHL'. NO 'Liqui Moly'.
-Return JSON matching schema.`;
-  }
+  let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
+1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
+2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
+<ravenol_data>
+${ravenolData ? ravenolData.substring(0, 50000) : 'No data found on podbor.ravenol.ru for this VIN.'}
+</ravenol_data>
+3. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
+4. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
+5. NO Liqui Moly.
+6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
-  if (mileage || conditions) {
-    prompt += `\nConditions: ${mileage || ''} ${conditions || ''}. Adjust viscosity if needed.`;
-  }
-
-  onStatusChange?.('Поиск рекомендаций...');
+  onStatusChange?.('Анализ данных...');
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-3-flash-preview',
+      model: FREE_MODELS[0],
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
-        temperature: 0.2,
+        temperature: 0.1,
         tools: [{ googleSearch: {} }],
       }
     });
@@ -235,6 +225,19 @@ Return JSON matching schema.`;
     const text = response.text;
     if (!text) throw new Error('Пустой ответ от ИИ');
     const carData = JSON.parse(text) as CarData;
+    
+    // Safety filter: ensure Liqui Moly is NEVER in the results
+    if (carData.recommendations) {
+      carData.recommendations.forEach(rec => {
+        if (rec.products) {
+          rec.products = rec.products.filter(p => 
+            !p.brand_name.toLowerCase().includes('liqui') && 
+            !p.brand_name.toLowerCase().includes('moly')
+          );
+        }
+      });
+    }
+
     if (carData.id === 'INVALID_VIN') {
       throw new Error('VIN-код не найден или недействителен');
     }
@@ -249,33 +252,54 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
-  let prompt = `You are an expert automotive fluid specialist.
-Identify vehicle: ${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}.
-Provide recommended fluids/oils (Engine, Transmission, Axles, Antifreeze, Brake fluid).
-Use Google Search to verify specifications.
-Strictly recommend: 'Ravenol', 'Motul', 'BARDAHL'. NO 'Liqui Moly'.
-Return JSON matching schema.`;
+  const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}`.trim();
+  
+  onStatusChange?.('Поиск в базе данных...');
+  const ravenolData = await fetchRavenolData(query);
 
-  if (mileage || conditions) {
-    prompt += `\nConditions: ${mileage || ''} ${conditions || ''}. Adjust viscosity if needed.`;
-  }
+  let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
+Vehicle: ${query}.
+1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
+<ravenol_data>
+${ravenolData ? ravenolData.substring(0, 50000) : 'No data found on podbor.ravenol.ru for this car.'}
+</ravenol_data>
+2. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
+3. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
+4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
+5. NO Liqui Moly.
+6. Conditions: ${mileage || ''} ${conditions || ''}.
+7. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
-  onStatusChange?.('Поиск рекомендаций...');
+  onStatusChange?.('Анализ данных...');
   try {
     const response = await callGeminiWithRetry(ai, {
-      model: 'gemini-3-flash-preview',
+      model: FREE_MODELS[0],
       contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
-        temperature: 0.2,
+        temperature: 0.1,
         tools: [{ googleSearch: {} }],
       }
     });
 
     const text = response.text;
     if (!text) throw new Error('Пустой ответ от ИИ');
-    return JSON.parse(text) as CarData;
+    const carData = JSON.parse(text) as CarData;
+
+    // Safety filter: ensure Liqui Moly is NEVER in the results
+    if (carData.recommendations) {
+      carData.recommendations.forEach(rec => {
+        if (rec.products) {
+          rec.products = rec.products.filter(p => 
+            !p.brand_name.toLowerCase().includes('liqui') && 
+            !p.brand_name.toLowerCase().includes('moly')
+          );
+        }
+      });
+    }
+
+    return carData;
   } catch (error) {
     console.error("Gemini failed", error);
     throw error;

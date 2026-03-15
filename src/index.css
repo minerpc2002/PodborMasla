@@ -29,3 +29,17 @@ body {
 .dark .nav-shadow {
   box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
 }
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.shimmer-ai {
+  background: linear-gradient(90deg, #9333ea, #3b82f6, #9333ea);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+  display: inline-block;
+}

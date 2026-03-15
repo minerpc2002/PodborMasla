@@ -1,11 +1,12 @@
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { Home, Search, History, Heart, ShieldCheck, User, Gift, HelpCircle } from 'lucide-react';
+import { Home, Search, History, Heart, ShieldCheck, User, Gift, HelpCircle, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useEffect, useState } from 'react';
 import { setupTelegram } from '../lib/telegram';
 import AuthModal from './AuthModal';
 import PromoModal from './PromoModal';
 import FAQModal from './FAQModal';
+import HowItWorksModal from './HowItWorksModal';
 import { useAppStore } from '../store/useAppStore';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -14,6 +15,7 @@ export default function Layout() {
   const { nickname, promoCode, promoCodeActivatedAt } = useAppStore();
   const [isPromoModalOpen, setIsPromoModalOpen] = useState(false);
   const [isFAQModalOpen, setIsFAQModalOpen] = useState(false);
+  const [isHowItWorksOpen, setIsHowItWorksOpen] = useState(false);
 
   useEffect(() => {
     setupTelegram();
@@ -34,6 +36,7 @@ export default function Layout() {
       <AuthModal />
       <PromoModal isOpen={isPromoModalOpen} onClose={() => setIsPromoModalOpen(false)} />
       <FAQModal isOpen={isFAQModalOpen} onClose={() => setIsFAQModalOpen(false)} />
+      <HowItWorksModal isOpen={isHowItWorksOpen} onClose={() => setIsHowItWorksOpen(false)} />
       
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
@@ -51,18 +54,29 @@ export default function Layout() {
             </motion.div>
             <div className="flex flex-col leading-none">
               <span className="text-zinc-900 dark:text-zinc-50">MasloMARKET</span>
-              <span className="text-[10px] uppercase tracking-widest text-purple-600 dark:text-purple-400 mt-0.5 font-black">
-                ПОДБОР AI
+              <span className="text-[10px] uppercase tracking-widest mt-0.5 font-black">
+                ПОДБОР <span className="shimmer-ai">AI</span>
               </span>
             </div>
           </Link>
           
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setIsHowItWorksOpen(true)}
+              className="p-2 text-zinc-400 hover:text-blue-600 transition-colors"
+              title="Как это работает"
+            >
+              <Info size={20} />
+            </motion.button>
+
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               onClick={() => setIsFAQModalOpen(true)}
               className="p-2 text-zinc-400 hover:text-blue-600 transition-colors"
+              title="FAQ"
             >
               <HelpCircle size={20} />
             </motion.button>
