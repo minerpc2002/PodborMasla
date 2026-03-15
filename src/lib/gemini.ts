@@ -101,11 +101,15 @@ async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<a
 
 async function getGeminiVinHint(ai: any, vin: string): Promise<string | null> {
   try {
-    const prompt = `Decode this VIN: ${vin}. Return ONLY the Brand and Model. Example: "BMW X4". If you are not 100% sure, return "Unknown".`;
+    const prompt = `Decode this VIN: ${vin}. Return ONLY the Brand and Model. Example: "BMW X4". 
+    IMPORTANT: This is a specialized task. Do not guess. Use your internal knowledge or search if available.
+    If you are not 100% sure, return "Unknown".`;
+    
     const response = await callGeminiWithRetry(ai, {
       contents: prompt,
       config: {
         temperature: 0,
+        tools: [{ googleSearch: {} }] as any,
       }
     }, 1);
     const text = response.text?.trim();
@@ -229,7 +233,8 @@ ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
 </ravenol_data>
 3. MANDATORY TASK: 
    - You MUST identify the car EXACTLY as it is written in the <ravenol_data>. 
-   - If <ravenol_data> says it is a "BMW 2 Series Gran Coupe", you MUST return "BMW" and "2 Series Gran Coupe", even if you think it should be something else.
+   - If <ravenol_data> says it is a "BMW X4", you MUST return "BMW" and "X4", even if you think it should be something else.
+   - If <ravenol_data> is missing, use Google Search to find this VIN on podbor.ravenol.ru.
    - Extract exact volumes, OEM specifications, and factory viscosities from the <ravenol_data>.
 4. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
@@ -246,7 +251,8 @@ ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
-        temperature: 0.1,
+        temperature: 0,
+        tools: [{ googleSearch: {} }] as any,
       }
     });
 
