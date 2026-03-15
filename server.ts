@@ -37,6 +37,33 @@ async function startServer() {
     }
   });
 
+  // Proxy route for Gemini API to bypass regional restrictions
+  app.post("/api/proxy/gemini/:model", express.json(), async (req, res) => {
+    const { model } = req.params;
+    const apiKey = process.env.GEMINI_API_KEY;
+    
+    if (!apiKey) {
+      return res.status(500).json({ error: "GEMINI_API_KEY is not set" });
+    }
+
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(req.body),
+      });
+      
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } catch (error) {
+      console.error("Gemini proxy error:", error);
+      res.status(500).json({ error: "Failed to fetch from Gemini" });
+    }
+  });
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
