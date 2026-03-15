@@ -234,12 +234,12 @@ ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
 3. MANDATORY TASK: 
    - You MUST identify the car EXACTLY as it is written in the <ravenol_data>. 
    - If <ravenol_data> says it is a "BMW X4", you MUST return "BMW" and "X4", even if you think it should be something else.
-   - If <ravenol_data> is missing, use Google Search to find this VIN on podbor.ravenol.ru.
-   - Extract exact volumes, OEM specifications, and factory viscosities from the <ravenol_data>.
+   - Extract ALL exact volumes, ALL OEM specifications, and ALL factory viscosities from the <ravenol_data>.
 4. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
+   - For "factory_viscosity", list ALL viscosities mentioned in the Ravenol catalog (e.g., "0W-20, 5W-30").
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}.
-   - Recommend Ravenol (primary), Motul, Bardahl.
+   - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
@@ -252,7 +252,6 @@ ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
         temperature: 0,
-        tools: [{ googleSearch: {} }] as any,
       }
     });
 
@@ -306,11 +305,12 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 </ravenol_data>
 2. MANDATORY TASK: 
    - You MUST identify the car EXACTLY as it is written in the <ravenol_data>.
-   - Extract exact volumes, OEM specifications, and factory viscosities from the <ravenol_data>.
+   - Extract ALL exact volumes, ALL OEM specifications, and ALL factory viscosities from the <ravenol_data>.
 3. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
+   - For "factory_viscosity", list ALL viscosities mentioned in the Ravenol catalog (e.g., "0W-20, 5W-30").
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}.
-   - Recommend Ravenol (primary), Motul, Bardahl.
+   - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
 4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
