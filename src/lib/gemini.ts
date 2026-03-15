@@ -99,6 +99,22 @@ async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<a
   throw new Error('Все доступные модели перегружены. Пожалуйста, попробуйте позже.');
 }
 
+async function getGeminiVinHint(ai: any, vin: string): Promise<string | null> {
+  try {
+    const prompt = `Decode this VIN: ${vin}. Return ONLY the Brand and Model. Example: "BMW X4". If you are not 100% sure, return "Unknown".`;
+    const response = await callGeminiWithRetry(ai, {
+      contents: prompt,
+      config: {
+        temperature: 0,
+      }
+    }, 1);
+    const text = response.text?.trim();
+    return text === 'Unknown' ? null : text;
+  } catch (e) {
+    return null;
+  }
+}
+
 export async function suggestCarBodies(brand: string, model: string, year: string): Promise<string[]> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
@@ -194,8 +210,14 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
   const ai = new GoogleGenAI({ apiKey });
 
   onStatusChange?.('Поиск в базе данных...');
-  const vehicle = await decodeVin(vin);
-  const hint = vehicle ? `${vehicle.make} ${vehicle.model} ${vehicle.year}` : undefined;
+  
+  // Try to get hint from both NHTSA and Gemini for maximum accuracy
+  const [vehicle, geminiHint] = await Promise.all([
+    decodeVin(vin),
+    getGeminiVinHint(ai, vin)
+  ]);
+  
+  const hint = geminiHint || (vehicle ? `${vehicle.make} ${vehicle.model} ${vehicle.year}` : undefined);
   
   const ravenolData = await fetchRavenolData(vin, hint);
   

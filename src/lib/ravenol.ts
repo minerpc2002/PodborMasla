@@ -14,13 +14,20 @@ export async function fetchRavenolData(query: string, hint?: string): Promise<st
     let bestMatch = matches[0][1];
     if (matches.length > 1 && hint) {
       const hintLower = hint.toLowerCase();
+      const hintWords = hintLower.split(' ').filter(word => word.length > 2);
+      
+      let maxMatches = 0;
       for (const m of matches) {
         const linkText = m[0].toLowerCase();
-        if (hintLower.split(' ').some(word => word.length > 2 && linkText.includes(word))) {
+        const matchCount = hintWords.filter(word => linkText.includes(word)).length;
+        
+        if (matchCount > maxMatches) {
+          maxMatches = matchCount;
           bestMatch = m[1];
-          break;
         }
       }
+      
+      console.log(`Ravenol search for "${query}" returned ${matches.length} results. Hint: "${hint}". Picked: ${bestMatch}`);
     }
 
     const carUrl = `https://podbor.ravenol.ru${bestMatch}`;
