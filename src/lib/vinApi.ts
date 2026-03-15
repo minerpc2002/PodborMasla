@@ -31,7 +31,7 @@ export async function decodeVin(vin: string): Promise<DecodedVehicle | null> {
   })();
 
   const timeoutPromise = new Promise<null>((resolve) => {
-    setTimeout(() => resolve(null), 4000); // 4 second hard timeout
+    setTimeout(() => resolve(null), 10000); // 10 second hard timeout
   });
 
   try {

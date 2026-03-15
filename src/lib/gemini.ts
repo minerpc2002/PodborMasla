@@ -66,9 +66,9 @@ function getApiKey() {
 
 
 const FREE_MODELS = [
+  'gemini-3.1-pro-preview',
   'gemini-3-flash-preview',
-  'gemini-2.5-flash',
-  'gemini-3.1-flash-lite-preview'
+  'gemini-2.5-flash'
 ];
 
 async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
@@ -195,16 +195,20 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
 
   onStatusChange?.('Поиск в базе данных...');
   const vehicle = await decodeVin(vin);
+  const hint = vehicle ? `${vehicle.make} ${vehicle.model} ${vehicle.year}` : undefined;
   
-  const ravenolData = await fetchRavenolData(vin);
+  const ravenolData = await fetchRavenolData(vin, hint);
   
   let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
-2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
+2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data contains exact volumes, OEM specifications, and factory viscosities.
 <ravenol_data>
-${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.ravenol.ru for this VIN.'}
+${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
 </ravenol_data>
-3. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
+3. TASK: 
+   - First, confirm the car identity (Brand, Model, Year, Engine) using BOTH the VIN and the ravenol_data.
+   - If ravenol_data contains multiple options, pick the one that matches the VIN/Hint best.
+   - Extract exact volumes, OEM specifications, and factory viscosities.
 4. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
