@@ -218,7 +218,6 @@ ${ravenolData ? ravenolData.substring(0, 50000) : 'No data found on podbor.raven
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
         temperature: 0.1,
-        tools: [{ googleSearch: {} }],
       }
     });
 
@@ -279,7 +278,6 @@ ${ravenolData ? ravenolData.substring(0, 50000) : 'No data found on podbor.raven
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
         temperature: 0.1,
-        tools: [{ googleSearch: {} }],
       }
     });
 
