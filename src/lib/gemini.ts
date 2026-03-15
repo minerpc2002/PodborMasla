@@ -71,51 +71,25 @@ const FREE_MODELS = [
   'gemini-3.1-flash-lite-preview'
 ];
 
-async function callGeminiWithRetry(params: any, retries = 3): Promise<any> {
+async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
   let modelIndex = 0;
   let attempt = 0;
   
   while (attempt < retries * FREE_MODELS.length) {
-    const model = FREE_MODELS[modelIndex];
     try {
-      const response = await fetch(`/api/proxy/gemini/${model}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: params.contents,
-          config: params.config
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        // Handle specific errors from Google
-        if (errorData.error?.message?.includes('User location is not supported')) {
-          throw new Error('USER_LOCATION_UNSUPPORTED');
-        }
-        throw new Error(errorData.error?.message || `API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-      
-      // Extract text like the SDK does
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-      return { text };
+      params.model = FREE_MODELS[modelIndex];
+      return await ai.models.generateContent(params);
     } catch (error: any) {
-      if (error.message === 'USER_LOCATION_UNSUPPORTED') {
-        throw new Error('Ваш регион временно не поддерживается API Gemini. Пожалуйста, используйте VPN или попробуйте позже.');
-      }
-
       const isQuotaError = error.message?.includes('429') || 
                           error.message?.includes('quota') || 
                           error.message?.includes('RESOURCE_EXHAUSTED');
       
       if (isQuotaError) {
-        console.warn(`Лимит исчерпан для ${model}. Переключение на следующую модель...`);
+        console.warn(`Лимит исчерпан для ${FREE_MODELS[modelIndex]}. Переключение на следующую модель...`);
         modelIndex = (modelIndex + 1) % FREE_MODELS.length;
         attempt++;
+        
+        // Небольшая задержка перед повтором
         await new Promise(resolve => setTimeout(resolve, 500));
         continue;
       }
@@ -126,16 +100,16 @@ async function callGeminiWithRetry(params: any, retries = 3): Promise<any> {
 }
 
 export async function suggestCarBodies(brand: string, model: string, year: string): Promise<string[]> {
-  const prompt = {
-    parts: [{
-      text: `List the known body codes (кузова/поколения) for ${brand} ${model} from the year ${year}. 
-Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`
-    }]
-  };
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `List the known body codes (кузова/поколения) for ${brand} ${model} from the year ${year}. 
+Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`;
 
   try {
-    const response = await callGeminiWithRetry({
-      contents: [prompt],
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -156,16 +130,16 @@ Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`
 }
 
 export async function suggestCarModels(brand: string): Promise<string[]> {
-  const prompt = {
-    parts: [{
-      text: `List the most popular car models for the brand ${brand}.
-Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`
-    }]
-  };
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `List the most popular car models for the brand ${brand}.
+Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`;
 
   try {
-    const response = await callGeminiWithRetry({
-      contents: [prompt],
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -186,16 +160,16 @@ Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`
 }
 
 export async function suggestCarEngines(brand: string, model: string, year: string, body: string): Promise<string[]> {
-  const prompt = {
-    parts: [{
-      text: `List the known engine codes and volumes (двигатели) for ${brand} ${model} ${year} (${body}).
-Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0 M20A-FKS"].`
-    }]
-  };
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `List the known engine codes and volumes (двигатели) for ${brand} ${model} ${year} (${body}).
+Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0 M20A-FKS"].`;
 
   try {
-    const response = await callGeminiWithRetry({
-      contents: [prompt],
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: {
@@ -216,14 +190,15 @@ Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0
 }
 
 export async function searchByVin(vin: string, mileage?: string, conditions?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
   onStatusChange?.('Поиск в базе данных...');
   const vehicle = await decodeVin(vin);
   
   const ravenolData = await fetchRavenolData(vin);
   
-  let prompt = {
-    parts: [{
-      text: `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
+  let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
 2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
 <ravenol_data>
@@ -232,14 +207,13 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 3. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
 4. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
 5. NO Liqui Moly.
-6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`
-    }]
-  };
+6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
   onStatusChange?.('Анализ данных...');
   try {
-    const response = await callGeminiWithRetry({
-      contents: [prompt],
+    const response = await callGeminiWithRetry(ai, {
+      model: FREE_MODELS[0],
+      contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
@@ -249,7 +223,14 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 
     const text = response.text;
     if (!text) throw new Error('Пустой ответ от ИИ');
-    const carData = JSON.parse(text) as CarData;
+    
+    let carData: CarData;
+    try {
+      carData = JSON.parse(text) as CarData;
+    } catch (e) {
+      console.error("Failed to parse JSON from Gemini:", text);
+      throw new Error(`Ошибка парсинга ответа ИИ: ${text.substring(0, 50)}...`);
+    }
     
     // Safety filter: ensure Liqui Moly is NEVER in the results
     if (carData.recommendations) {
@@ -274,14 +255,15 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 }
 
 export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, mileage?: string, conditions?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
   const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}`.trim();
   
   onStatusChange?.('Поиск в базе данных...');
   const ravenolData = await fetchRavenolData(query);
 
-  let prompt = {
-    parts: [{
-      text: `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
+  let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 Vehicle: ${query}.
 1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
 <ravenol_data>
@@ -292,14 +274,13 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
 5. NO Liqui Moly.
 6. Conditions: ${mileage || ''} ${conditions || ''}.
-7. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`
-    }]
-  };
+7. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
   onStatusChange?.('Анализ данных...');
   try {
-    const response = await callGeminiWithRetry({
-      contents: [prompt],
+    const response = await callGeminiWithRetry(ai, {
+      model: FREE_MODELS[0],
+      contents: prompt,
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
@@ -309,7 +290,14 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 
     const text = response.text;
     if (!text) throw new Error('Пустой ответ от ИИ');
-    const carData = JSON.parse(text) as CarData;
+    
+    let carData: CarData;
+    try {
+      carData = JSON.parse(text) as CarData;
+    } catch (e) {
+      console.error("Failed to parse JSON from Gemini:", text);
+      throw new Error(`Ошибка парсинга ответа ИИ: ${text.substring(0, 50)}...`);
+    }
 
     // Safety filter: ensure Liqui Moly is NEVER in the results
     if (carData.recommendations) {
