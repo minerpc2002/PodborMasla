@@ -1,18 +1,19 @@
 export async function fetchRavenolData(query: string): Promise<string | null> {
   try {
     // 1. Search for the query (VIN or car details)
-    const searchRes = await fetch(`https://podbor.ravenol.ru/search/?q=${encodeURIComponent(query)}`);
+    const searchUrl = `https://podbor.ravenol.ru/search/?q=${encodeURIComponent(query)}`;
+    const searchRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(searchUrl)}`);
     if (!searchRes.ok) return null;
     const searchHtml = await searchRes.text();
 
     // 2. Extract the car page URL
-    const match = searchHtml.match(/<a href="(\/1-cars\/[^"]+)" class="ravwidg-list-link">/);
+    const match = searchHtml.match(/<a href="(\/[0-9]+-[a-z-]+\/[^"]+)" class="ravwidg-list-link">/);
     if (!match) return null;
     
     const carUrl = `https://podbor.ravenol.ru${match[1]}`;
 
-    // 3. Fetch the car page
-    const carRes = await fetch(carUrl);
+    // 3. Fetch the car page via proxy
+    const carRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(carUrl)}`);
     if (!carRes.ok) return null;
     const carHtml = await carRes.text();
 

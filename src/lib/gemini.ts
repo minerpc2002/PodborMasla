@@ -202,7 +202,7 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
 1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
 2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
 <ravenol_data>
-${ravenolData ? ravenolData.substring(0, 50000) : 'No data found on podbor.ravenol.ru for this VIN.'}
+${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.ravenol.ru for this VIN.'}
 </ravenol_data>
 3. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
 4. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.
@@ -260,7 +260,7 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
 Vehicle: ${query}.
 1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru for exact volumes, OEM specifications, and factory viscosities:
 <ravenol_data>
-${ravenolData ? ravenolData.substring(0, 50000) : 'No data found on podbor.ravenol.ru for this car.'}
+${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.ravenol.ru for this car.'}
 </ravenol_data>
 2. DATA: Extract exact volumes, OEM specifications, and factory viscosities from the provided ravenol_data.
 3. BRANDS: Recommend Ravenol (primary), Motul, Bardahl.

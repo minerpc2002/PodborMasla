@@ -74,12 +74,12 @@ TabsTrigger.displayName = "TabsTrigger"
 
 export const TabsContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement> & { value: string }
->(({ className, value, ...props }, ref) => {
+  React.HTMLAttributes<HTMLDivElement> & { value: string; forceMount?: boolean }
+>(({ className, value, forceMount, children, ...props }, ref) => {
   const { value: selectedValue } = React.useContext(TabsContext);
   const isSelected = selectedValue === value;
 
-  if (!isSelected) return null;
+  if (!isSelected && !forceMount) return null;
 
   return (
     <div
@@ -90,7 +90,9 @@ export const TabsContent = React.forwardRef<
         className
       )}
       {...props}
-    />
+    >
+      {children}
+    </div>
   )
 })
 TabsContent.displayName = "TabsContent"

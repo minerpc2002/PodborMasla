@@ -9,7 +9,8 @@ export interface DecodedVehicle {
 export async function decodeVin(vin: string): Promise<DecodedVehicle | null> {
   const fetchPromise = (async () => {
     try {
-      const response = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`);
+      const apiUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
+      const response = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(apiUrl)}`);
       if (!response.ok) return null;
       const data = await response.json();
       
