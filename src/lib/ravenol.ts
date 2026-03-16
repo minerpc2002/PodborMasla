@@ -13,9 +13,20 @@ export async function fetchRavenolData(query: string, hint?: string): Promise<st
       carHtml = searchHtml;
     } else {
       // 2. Extract the car page URLs from search results
-      const matches = Array.from(searchHtml.matchAll(/<a href="(\/[0-9]+-[a-z-]+\/[^"]+)" class="ravwidg-list-link">/g));
+      // More flexible regex to catch links even if class order or other attributes change
+      const matches = Array.from(searchHtml.matchAll(/<a[^>]+href="(\/[0-9]+-[a-z-]+\/[^"]+)"[^>]*class="[^"]*ravwidg-list-link[^"]*"[^>]*>/g));
       
-      if (matches.length === 0) return null;
+      if (matches.length === 0) {
+        console.warn(`No matches found for query: ${query}. Search HTML length: ${searchHtml.length}`);
+        // Fallback: try to find any link that looks like a car page
+        const fallbackMatches = Array.from(searchHtml.matchAll(/<a[^>]+href="(\/[0-9]+-[a-z-]+\/[^"]+)"/g));
+        if (fallbackMatches.length > 0) {
+          console.log(`Found ${fallbackMatches.length} fallback matches for query: ${query}`);
+          matches.push(...fallbackMatches);
+        } else {
+          return null;
+        }
+      }
       
       // If there are multiple results and we have a hint, try to find the best match
       let bestMatch = matches[0][1];

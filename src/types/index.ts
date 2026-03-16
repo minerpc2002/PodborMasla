@@ -2,7 +2,7 @@ export type FluidType = 'engine_oil' | 'atf' | 'mtf' | 'cvt' | 'dsg' | 'gear_oil
 
 export interface Product {
   id: string;
-  brand_name: 'Ravenol' | 'Motul' | 'BARDAHL' | 'Liqui Moly' | 'Moly Green';
+  brand_name: 'Ravenol' | 'Motul' | 'BARDAHL' | 'Moly Green';
   product_name: string;
   category: FluidType;
   viscosity: string;

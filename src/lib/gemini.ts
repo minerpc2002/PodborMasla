@@ -330,13 +330,33 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
   const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}`.trim();
   
   onStatusChange?.('Поиск в базе данных...');
-  const ravenolData = await fetchRavenolData(query);
+  let ravenolData = await fetchRavenolData(query);
 
-  if (!ravenolData) {
-    throw new Error('Автомобиль с такими параметрами не найден в каталоге Ravenol. Пожалуйста, проверьте правильность ввода (Марка, Модель, Кузов).');
+  // Fallback: if specific query fails, try a simpler one (Brand + Model + Body)
+  if (!ravenolData && (year || body || engine)) {
+    onStatusChange?.('Уточнение поиска...');
+    const simplerQuery = `${brand} ${model} ${body || ''}`.trim();
+    if (simplerQuery !== query) {
+      ravenolData = await fetchRavenolData(simplerQuery, query);
+    }
   }
 
-  let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
+  let prompt = '';
+  if (!ravenolData) {
+    onStatusChange?.('Поиск в базе ИИ (Ravenol недоступен)...');
+    prompt = `Expert Oil Selector. 
+    WARNING: podbor.ravenol.ru is currently unavailable or car not found. 
+    TASK: Use your internal knowledge to provide the most accurate technical data for: ${query}.
+    1. Identify the car: ${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}.
+    2. Provide EXACT volumes, OEM specifications, and viscosities.
+    3. RECOMMENDATIONS:
+       - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
+       - If the car is Japanese, also include Moly Green.
+    4. NO Liqui Moly.
+    5. OUTPUT: Return JSON (Russian text). 
+    6. IMPORTANT: Add a note in the description of the first unit that this data is provided by AI because the official catalog was unreachable.`;
+  } else {
+    prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 Vehicle: ${query}.
 1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this vehicle.
 <ravenol_data>
@@ -354,6 +374,7 @@ ${ravenolData.substring(0, 100000)}
 4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
+  }
 
   onStatusChange?.('Анализ данных...');
   try {
