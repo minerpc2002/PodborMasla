@@ -6,7 +6,7 @@ import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Select } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { searchByVin, searchByCarDetails, suggestCarBodies, suggestCarModels, suggestCarEngines, suggestEnginePower } from '../lib/gemini';
+import { searchByVin, searchByCarDetails, suggestCarBodies, suggestCarModels, suggestCarEngines, suggestEnginePower, suggestTransmissions } from '../lib/gemini';
 import { useAppStore } from '../store/useAppStore';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -37,6 +37,7 @@ export default function Search() {
   const [year, setYear] = useState('');
   const [body, setBody] = useState('');
   const [engine, setEngine] = useState('');
+  const [transmission, setTransmission] = useState('');
   const [isSearchingManual, setIsSearchingManual] = useState(false);
   const [manualError, setManualError] = useState('');
   const [searchStatus, setSearchStatus] = useState('');
@@ -56,6 +57,10 @@ export default function Search() {
   // Power Suggestions State
   const [powerSuggestions, setPowerSuggestions] = useState<string[]>([]);
   const [isLoadingPower, setIsLoadingPower] = useState(false);
+
+  // Transmission Suggestions State
+  const [transmissionSuggestions, setTransmissionSuggestions] = useState<string[]>([]);
+  const [isLoadingTransmissions, setIsLoadingTransmissions] = useState(false);
 
   const fetchModels = async () => {
     if (!brand) return;
@@ -109,6 +114,19 @@ export default function Search() {
     }
   };
 
+  const fetchTransmissions = async () => {
+    if (!brand || !model || !year || !body || !engine) return;
+    setIsLoadingTransmissions(true);
+    try {
+      const transmissions = await suggestTransmissions(brand, model, year, body, engine);
+      setTransmissionSuggestions(transmissions);
+    } catch (e) {
+      console.error('Failed to fetch transmission suggestions', e);
+    } finally {
+      setIsLoadingTransmissions(false);
+    }
+  };
+
   // VIN Search State
   const [vin, setVin] = useState('');
   const [isSearchingVin, setIsSearchingVin] = useState(false);
@@ -122,8 +140,8 @@ export default function Search() {
   const [fuelType, setFuelType] = useState('');
 
   const handleManualSearch = async () => {
-    if (!brand || !model || !body) {
-      setManualError('Пожалуйста, заполните марку, модель и кузов автомобиля');
+    if (!brand || !model || !body || !transmission) {
+      setManualError('Пожалуйста, заполните марку, модель, кузов и тип трансмиссии');
       return;
     }
     
@@ -138,7 +156,7 @@ export default function Search() {
     setSearchStatus('Инициализация...');
     
     try {
-      const carData = await searchByCarDetails(brand, model, year, body, engine, mileage, conditions, power, handDrive, fuelType, (status) => setSearchStatus(status));
+      const carData = await searchByCarDetails(brand, model, year, body, engine, transmission, mileage, conditions, power, handDrive, fuelType, (status) => setSearchStatus(status));
       recordSearch();
       addDynamicCar(carData);
       navigate(`/result/${carData.id}`);
@@ -509,6 +527,80 @@ export default function Search() {
                       <datalist id="power-list">
                         {powerSuggestions.map(p => <option key={p} value={p} />)}
                       </datalist>
+                    </div>
+
+                    <div className="space-y-3 relative">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                          Тип трансмиссии <span className="text-red-500">*</span>
+                          {isLoadingTransmissions && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                        </label>
+                        {brand && model && body && engine && !transmissionSuggestions.length && !isLoadingTransmissions && (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={fetchTransmissions}
+                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            <Sparkles size={10} />
+                            Автоподбор
+                          </motion.button>
+                        )}
+                      </div>
+                      
+                      {transmissionSuggestions.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                          {transmissionSuggestions.map((t) => {
+                            const isSpecial = (t.toLowerCase().includes('механика') || t.toLowerCase().includes('мкпп')) && 
+                                             (t.toLowerCase().includes('вариатор') || t.toLowerCase().includes('cvt'));
+                            // Actually the user said "if manual AND cvt are available" (on the car), then mark them.
+                            // So if BOTH exist in the suggestions, we mark them.
+                            const hasManual = transmissionSuggestions.some(s => s.toLowerCase().includes('механика') || s.toLowerCase().includes('мкпп'));
+                            const hasCVT = transmissionSuggestions.some(s => s.toLowerCase().includes('вариатор') || s.toLowerCase().includes('cvt'));
+                            const shouldHighlight = hasManual && hasCVT && (t.toLowerCase().includes('механика') || t.toLowerCase().includes('мкпп') || t.toLowerCase().includes('вариатор') || t.toLowerCase().includes('cvt'));
+
+                            return (
+                              <motion.button
+                                key={t}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={() => setTransmission(t)}
+                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 ${
+                                  transmission === t 
+                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
+                                    : shouldHighlight
+                                      ? 'border-yellow-400 animate-shimmer-yellow text-zinc-900'
+                                      : 'border-transparent bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+                                }`}
+                              >
+                                {shouldHighlight && <span className="mr-1">★</span>}
+                                {t}
+                              </motion.button>
+                            );
+                          })}
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            onClick={() => setTransmissionSuggestions([])}
+                            className="text-xs text-zinc-400"
+                          >
+                            Сбросить
+                          </Button>
+                        </div>
+                      ) : (
+                        <Select 
+                          value={transmission}
+                          onChange={(e) => setTransmission(e.target.value)}
+                          disabled={isSearchingManual}
+                          className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        >
+                          <option value="">Выберите трансмиссию</option>
+                          <option value="АКПП">АКПП (Автомат)</option>
+                          <option value="МКПП">МКПП (Механика)</option>
+                          <option value="Вариатор (CVT)">Вариатор (CVT)</option>
+                          <option value="Робот (DSG/DCT)">Робот (DSG/DCT)</option>
+                        </Select>
+                      )}
                     </div>
 
                     {renderCommonParams()}

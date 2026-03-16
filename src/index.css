@@ -35,6 +35,17 @@ body {
   100% { background-position: 200% center; }
 }
 
+@keyframes shimmer-yellow {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.animate-shimmer-yellow {
+  background: linear-gradient(90deg, #fef08a 25%, #facc15 50%, #fef08a 75%);
+  background-size: 200% auto;
+  animation: shimmer-yellow 3s linear infinite;
+}
+
 .shimmer-ai {
   background: linear-gradient(90deg, #9333ea, #3b82f6, #9333ea);
   background-size: 200% auto;

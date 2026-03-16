@@ -239,6 +239,36 @@ Return ONLY a JSON array of strings. Example: ["181 л.с. / 133 кВт", "249 �
   }
 }
 
+export async function suggestTransmissions(brand: string, model: string, year: string, body: string, engine: string): Promise<string[]> {
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `List the known transmission types (КПП) for ${brand} ${model} ${year} (${body}) with engine ${engine}.
+Return ONLY a JSON array of strings. Example: ["АКПП", "МКПП", "Вариатор (CVT)", "Робот (DSG/DCT)"].`;
+
+  try {
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        },
+        temperature: 0.1,
+      }
+    });
+
+    const text = response.text;
+    if (!text) return [];
+    return JSON.parse(text) as string[];
+  } catch (error) {
+    console.error("Gemini failed", error);
+    return [];
+  }
+}
+
 export async function searchByVin(vin: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
@@ -323,11 +353,11 @@ ${ravenolData}
   }
 }
 
-export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
+export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, transmission?: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
-  const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}`.trim();
+  const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''} ${transmission || ''}`.trim();
   
   onStatusChange?.('Поиск в базе данных...');
   let ravenolData = await fetchRavenolData(query);
@@ -347,7 +377,7 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
     prompt = `Expert Oil Selector. 
     WARNING: podbor.ravenol.ru is currently unavailable or car not found. 
     TASK: Use your internal knowledge to provide the most accurate technical data for: ${query}.
-    1. Identify the car: ${brand} ${model} ${year || ''} ${body || ''} ${engine || ''}.
+    1. Identify the car: ${brand} ${model} ${year || ''} ${body || ''} ${engine || ''} ${transmission || ''}.
     2. Provide EXACT volumes, OEM specifications, and viscosities.
     3. RECOMMENDATIONS:
        - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
