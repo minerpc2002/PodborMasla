@@ -209,7 +209,37 @@ Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0
   }
 }
 
-export async function searchByVin(vin: string, mileage?: string, conditions?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
+export async function suggestEnginePower(brand: string, model: string, year: string, body: string, engine: string): Promise<string[]> {
+  const apiKey = getApiKey();
+  const ai = new GoogleGenAI({ apiKey });
+
+  const prompt = `List the known engine power options (л.с. / кВт) for ${brand} ${model} ${year} (${body}) with engine ${engine}.
+Return ONLY a JSON array of strings. Example: ["181 л.с. / 133 кВт", "249 л.с. / 183 кВт"].`;
+
+  try {
+    const response = await callGeminiWithRetry(ai, {
+      model: 'gemini-3-flash-preview',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.ARRAY,
+          items: { type: Type.STRING }
+        },
+        temperature: 0.1,
+      }
+    });
+
+    const text = response.text;
+    if (!text) return [];
+    return JSON.parse(text) as string[];
+  } catch (error) {
+    console.error("Gemini failed", error);
+    return [];
+  }
+}
+
+export async function searchByVin(vin: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
@@ -225,11 +255,15 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
   
   const ravenolData = await fetchRavenolData(vin, hint);
   
+  if (!ravenolData) {
+    throw new Error('Автомобиль с таким VIN не найден в каталоге Ravenol. Пожалуйста, проверьте VIN или воспользуйтесь ручным поиском.');
+  }
+
   let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
 2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this specific vehicle.
 <ravenol_data>
-${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
+${ravenolData}
 </ravenol_data>
 3. MANDATORY TASK: 
    - You MUST identify the car EXACTLY as it is written in the <ravenol_data>. 
@@ -238,8 +272,9 @@ ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
 4. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
    - For "factory_viscosity", list ALL viscosities mentioned in the Ravenol catalog (e.g., "0W-20, 5W-30").
-   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}.
+   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
    - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
+   - If the car is Japanese, also include Moly Green.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
 
@@ -288,7 +323,7 @@ ${ravenolData || 'No data found on podbor.ravenol.ru for this VIN.'}
   }
 }
 
-export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, mileage?: string, conditions?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
+export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
@@ -297,11 +332,15 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
   onStatusChange?.('Поиск в базе данных...');
   const ravenolData = await fetchRavenolData(query);
 
+  if (!ravenolData) {
+    throw new Error('Автомобиль с такими параметрами не найден в каталоге Ravenol. Пожалуйста, проверьте правильность ввода (Марка, Модель, Кузов).');
+  }
+
   let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
 Vehicle: ${query}.
 1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this vehicle.
 <ravenol_data>
-${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.ravenol.ru for this car.'}
+${ravenolData.substring(0, 100000)}
 </ravenol_data>
 2. MANDATORY TASK: 
    - You MUST identify the car EXACTLY as it is written in the <ravenol_data>.
@@ -309,8 +348,9 @@ ${ravenolData ? ravenolData.substring(0, 100000) : 'No data found on podbor.rave
 3. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
    - For "factory_viscosity", list ALL viscosities mentioned in the Ravenol catalog (e.g., "0W-20, 5W-30").
-   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}.
+   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
    - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
+   - If the car is Japanese, also include Moly Green.
 4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;

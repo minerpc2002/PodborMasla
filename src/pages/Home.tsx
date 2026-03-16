@@ -109,7 +109,7 @@ export default function Home() {
       >
         <h3 className="font-display font-semibold mb-3 text-sm text-zinc-500 uppercase tracking-wider">Официальные партнеры</h3>
         <div className="flex flex-wrap gap-2">
-          {['Ravenol', 'Motul', 'BARDAHL', 'Liqui Moly', 'Moly Green'].map((partner, i) => (
+          {['Ravenol', 'Motul', 'BARDAHL', 'Moly Green'].map((partner, i) => (
             <motion.span 
               key={partner}
               initial={{ opacity: 0, scale: 0.8 }}

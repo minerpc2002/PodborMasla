@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Search as SearchIcon, ScanLine, Loader2, Settings2, Sparkles, ChevronRight, Info, HelpCircle, X } from 'lucide-react';
+import { Search as SearchIcon, ScanLine, Loader2, Settings2, Sparkles, ChevronRight, Info, HelpCircle, X, AlertTriangle } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/card';
 import { Input } from '../components/ui/input';
 import { Button } from '../components/ui/button';
 import { Select } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { searchByVin, searchByCarDetails, suggestCarBodies, suggestCarModels, suggestCarEngines } from '../lib/gemini';
+import { searchByVin, searchByCarDetails, suggestCarBodies, suggestCarModels, suggestCarEngines, suggestEnginePower } from '../lib/gemini';
 import { useAppStore } from '../store/useAppStore';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -17,6 +17,8 @@ const POPULAR_BRANDS = [
   'Volkswagen', 'Audi', 'BMW', 'Mercedes-Benz', 'Skoda', 'Porsche', 'Volvo', 'Land Rover', 'Jaguar', 'Peugeot', 'Renault',
   'Ford', 'Chevrolet', 'Dodge', 'Jeep', 'Cadillac', 'Chrysler', 'Tesla', 'Daihatsu'
 ].sort();
+
+const YEARS = Array.from({ length: 2026 - 1990 + 1 }, (_, i) => (2026 - i).toString());
 
 export default function Search() {
   const navigate = useNavigate();
@@ -50,6 +52,10 @@ export default function Search() {
   // Engine Suggestions State
   const [engineSuggestions, setEngineSuggestions] = useState<string[]>([]);
   const [isLoadingEngines, setIsLoadingEngines] = useState(false);
+
+  // Power Suggestions State
+  const [powerSuggestions, setPowerSuggestions] = useState<string[]>([]);
+  const [isLoadingPower, setIsLoadingPower] = useState(false);
 
   const fetchModels = async () => {
     if (!brand) return;
@@ -90,6 +96,19 @@ export default function Search() {
     }
   };
 
+  const fetchPower = async () => {
+    if (!brand || !model || !year || !body || !engine) return;
+    setIsLoadingPower(true);
+    try {
+      const powers = await suggestEnginePower(brand, model, year, body, engine);
+      setPowerSuggestions(powers);
+    } catch (e) {
+      console.error('Failed to fetch power suggestions', e);
+    } finally {
+      setIsLoadingPower(false);
+    }
+  };
+
   // VIN Search State
   const [vin, setVin] = useState('');
   const [isSearchingVin, setIsSearchingVin] = useState(false);
@@ -98,6 +117,9 @@ export default function Search() {
   // Common Parameters
   const [mileage, setMileage] = useState('');
   const [conditions, setConditions] = useState('');
+  const [power, setPower] = useState('');
+  const [handDrive, setHandDrive] = useState('');
+  const [fuelType, setFuelType] = useState('');
 
   const handleManualSearch = async () => {
     if (!brand || !model || !body) {
@@ -116,7 +138,7 @@ export default function Search() {
     setSearchStatus('Инициализация...');
     
     try {
-      const carData = await searchByCarDetails(brand, model, year, body, engine, mileage, conditions, (status) => setSearchStatus(status));
+      const carData = await searchByCarDetails(brand, model, year, body, engine, mileage, conditions, power, handDrive, fuelType, (status) => setSearchStatus(status));
       recordSearch();
       addDynamicCar(carData);
       navigate(`/result/${carData.id}`);
@@ -146,7 +168,7 @@ export default function Search() {
     setSearchStatus('Инициализация...');
     
     try {
-      const carData = await searchByVin(vin, mileage, conditions, (status) => setSearchStatus(status));
+      const carData = await searchByVin(vin, mileage, conditions, power, handDrive, fuelType, (status) => setSearchStatus(status));
       recordSearch();
       addDynamicCar(carData);
       navigate(`/result/${carData.id}`);
@@ -191,6 +213,23 @@ export default function Search() {
             <option value="Спортивная езда">Спортивная езда</option>
           </Select>
         </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-zinc-500">Расположение руля</label>
+          <Select value={handDrive} onChange={(e) => setHandDrive(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
+            <option value="">Не указано</option>
+            <option value="Левый">Левый</option>
+            <option value="Правый">Правый</option>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-zinc-500">Тип топлива</label>
+          <Select value={fuelType} onChange={(e) => setFuelType(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
+            <option value="">Не указано</option>
+            <option value="Бензин">Бензин</option>
+            <option value="Дизель">Дизель</option>
+            <option value="Гибрид">Гибрид</option>
+          </Select>
+        </div>
       </div>
     </motion.div>
   );
@@ -231,7 +270,7 @@ export default function Search() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative"
+              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative max-h-[80vh] overflow-y-auto"
             >
               <button 
                 onClick={() => setShowHowItWorks(false)}
@@ -300,7 +339,12 @@ export default function Search() {
               Beta
             </span>
           </TabsTrigger>
-          <TabsTrigger value="vin" className="rounded-xl transition-all">По VIN коду</TabsTrigger>
+          <TabsTrigger value="vin" className="flex items-center gap-1.5 rounded-xl transition-all">
+            По VIN коду
+            <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-[9px] font-bold uppercase tracking-wider rounded-md">
+              Alpha
+            </span>
+          </TabsTrigger>
         </TabsList>
         
         <AnimatePresence mode="wait">
@@ -363,16 +407,15 @@ export default function Search() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Год <span className="text-zinc-400 font-normal">(опц.)</span></label>
-                        <Input 
-                          type="number"
-                          placeholder="2020" 
+                        <Select 
                           value={year}
                           onChange={(e) => setYear(e.target.value)}
                           disabled={isSearchingManual}
-                          min={1990}
-                          max={2026}
                           className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
-                        />
+                        >
+                          <option value="">Выберите год</option>
+                          {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
+                        </Select>
                       </div>
                       <div className="space-y-2 relative">
                         <div className="flex items-center justify-between">
@@ -437,6 +480,37 @@ export default function Search() {
                       </datalist>
                     </div>
 
+                    <div className="space-y-2 relative">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                          Мощность двигателя <span className="text-zinc-400 font-normal">(опц.)</span>
+                          {isLoadingPower && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                        </label>
+                        {brand && model && body && engine && !powerSuggestions.length && !isLoadingPower && (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={fetchPower}
+                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                          >
+                            <Sparkles size={10} />
+                            Автопоиск
+                          </motion.button>
+                        )}
+                      </div>
+                      <Input 
+                        list="power-list"
+                        placeholder="Например: 181 л.с. / 133 кВт" 
+                        value={power}
+                        onChange={(e) => setPower(e.target.value)}
+                        disabled={isSearchingManual}
+                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      />
+                      <datalist id="power-list">
+                        {powerSuggestions.map(p => <option key={p} value={p} />)}
+                      </datalist>
+                    </div>
+
                     {renderCommonParams()}
 
                     <AnimatePresence>
@@ -487,6 +561,17 @@ export default function Search() {
               >
                 <Card className="border-none shadow-xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden">
                   <CardContent className="pt-6 space-y-5">
+                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex gap-3">
+                      <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Внимание: ALPHA версия</p>
+                        <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                          Поиск по VIN находится в стадии тестирования. Автомобили могут определяться некорректно. 
+                          Рекомендуем проверять результаты или использовать ручной поиск.
+                        </p>
+                      </div>
+                    </div>
+
                     <div className="space-y-2">
                       <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
                         VIN код автомобиля

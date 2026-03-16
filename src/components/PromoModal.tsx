@@ -41,6 +41,14 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
     return Math.max(0, Math.ceil(7 - daysPassed));
   };
 
+  const formatResetTime = (minutes: number) => {
+    if (minutes <= 0) return '0 мин';
+    if (minutes < 60) return `${minutes} мин`;
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return `${hours} ч ${mins} мин`;
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <Card className="w-full max-w-md border-none shadow-2xl animate-in fade-in zoom-in-95 duration-300 relative">
@@ -86,7 +94,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
                       <Clock size={16} />
                       <span>Обновление через:</span>
                     </div>
-                    <span className="text-sm font-medium">{status.minutesUntilReset} мин</span>
+                    <span className="text-sm font-medium">{formatResetTime(status.minutesUntilReset)}</span>
                   </div>
                 )}
               </div>
@@ -126,7 +134,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
                       <Clock size={16} />
                       <span>Обновление через:</span>
                     </div>
-                    <span className="text-sm font-medium">{status.minutesUntilReset} мин</span>
+                    <span className="text-sm font-medium">{formatResetTime(status.minutesUntilReset)}</span>
                   </div>
                 )}
               </div>
@@ -151,7 +159,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
                   size="lg"
                   disabled={!promoInput.trim()}
                 >
-                  Активировать
+                  Активаровать
                 </Button>
               </form>
             </CardContent>
