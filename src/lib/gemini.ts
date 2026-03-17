@@ -65,6 +65,16 @@ function getApiKey() {
 }
 
 
+function getGeminiClient() {
+  const apiKey = getApiKey();
+  return new GoogleGenAI({ 
+    apiKey,
+    httpOptions: {
+      baseUrl: '/api/proxy/gemini'
+    }
+  });
+}
+
 const FREE_MODELS = [
   'gemini-3-flash-preview',
   'gemini-3.1-pro-preview',
@@ -145,8 +155,7 @@ async function getGeminiVinHint(ai: any, vin: string): Promise<string | null> {
 }
 
 export async function suggestCarBodies(brand: string, model: string, year: string): Promise<string[]> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   const prompt = `List the known body codes (кузова/поколения) for ${brand} ${model} from the year ${year}. 
 Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`;
@@ -175,8 +184,7 @@ Return ONLY a JSON array of strings. Example: ["XV70", "XV50", "ASV70"].`;
 }
 
 export async function suggestCarModels(brand: string): Promise<string[]> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   const prompt = `List the most popular car models for the brand ${brand}.
 Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`;
@@ -205,8 +213,7 @@ Return ONLY a JSON array of strings. Example: ["Camry", "Corolla", "RAV4"].`;
 }
 
 export async function suggestCarEngines(brand: string, model: string, year: string, body: string): Promise<string[]> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   const prompt = `List the known engine codes and volumes (двигатели) for ${brand} ${model} ${year} (${body}).
 Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0 M20A-FKS"].`;
@@ -235,8 +242,7 @@ Return ONLY a JSON array of strings. Example: ["2.5 2AR-FE", "3.5 2GR-FKS", "2.0
 }
 
 export async function suggestEnginePower(brand: string, model: string, year: string, body: string, engine: string): Promise<string[]> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   const prompt = `List the known engine power options (л.с. / кВт) for ${brand} ${model} ${year} (${body}) with engine ${engine}.
 Return ONLY a JSON array of strings. Example: ["181 л.с. / 133 кВт", "249 л.с. / 183 кВт"].`;
@@ -265,8 +271,7 @@ Return ONLY a JSON array of strings. Example: ["181 л.с. / 133 кВт", "249 �
 }
 
 export async function suggestTransmissions(brand: string, model: string, year: string, body: string, engine: string): Promise<string[]> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   const prompt = `List the known transmission types (КПП) for ${brand} ${model} ${year} (${body}) with engine ${engine}.
 Return ONLY a JSON array of strings. Example: ["АКПП", "МКПП", "Вариатор (CVT)", "Робот (DSG/DCT)"].`;
@@ -295,8 +300,7 @@ Return ONLY a JSON array of strings. Example: ["АКПП", "МКПП", "Вари
 }
 
 export async function searchByVin(vin: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   onStatusChange?.('Поиск в каталоге...');
   
@@ -410,8 +414,7 @@ ${ravenolData.substring(0, 50000)}
 }
 
 export async function searchByCarDetails(brand: string, model: string, year?: string, body?: string, engine?: string, transmission?: string, mileage?: string, conditions?: string, power?: string, handDrive?: string, fuelType?: string, onStatusChange?: (status: string) => void): Promise<CarData> {
-  const apiKey = getApiKey();
-  const ai = new GoogleGenAI({ apiKey });
+  const ai = getGeminiClient();
 
   const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''} ${transmission || ''}`.trim();
   
