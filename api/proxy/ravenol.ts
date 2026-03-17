@@ -15,7 +15,7 @@ export default async function handler(req: Request) {
     });
   }
 
-  const url = new URL(req.url);
+  const url = new URL(req.url, "http://localhost");
   const targetUrl = url.searchParams.get("url");
 
   if (!targetUrl) {

@@ -288,7 +288,7 @@ export default function Search() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-zinc-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative max-h-[80vh] overflow-y-auto"
+              className="liquid-glass-heavy rounded-3xl p-6 max-w-md w-full shadow-2xl relative max-h-[80vh] overflow-y-auto"
             >
               <button 
                 onClick={() => setShowHowItWorks(false)}
@@ -384,7 +384,7 @@ export default function Search() {
                         value={brand}
                         onChange={(e) => setBrand(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                        className="h-12 rounded-xl bg-zinc-800/50 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="brands-list">
                         {POPULAR_BRANDS.map(b => <option key={b} value={b} />)}
@@ -415,7 +415,7 @@ export default function Search() {
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                        className="h-12 rounded-xl bg-zinc-800/50 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="models-list">
                         {modelSuggestions.map(m => <option key={m} value={m} />)}
@@ -459,7 +459,7 @@ export default function Search() {
                           value={body}
                           onChange={(e) => setBody(e.target.value)}
                           disabled={isSearchingManual}
-                          className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                          className="h-12 rounded-xl bg-zinc-800/50 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                         />
                         <datalist id="body-list">
                           {bodySuggestions.map(b => <option key={b} value={b} />)}
@@ -491,7 +491,7 @@ export default function Search() {
                         value={engine}
                         onChange={(e) => setEngine(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                        className="h-12 rounded-xl bg-zinc-800/50 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="engines-list">
                         {engineSuggestions.map(e => <option key={e} value={e} />)}
@@ -522,7 +522,7 @@ export default function Search() {
                         value={power}
                         onChange={(e) => setPower(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                        className="h-12 rounded-xl bg-zinc-800/50 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="power-list">
                         {powerSuggestions.map(p => <option key={p} value={p} />)}
@@ -673,7 +673,7 @@ export default function Search() {
                         value={vin}
                         onChange={(e) => setVin(e.target.value.toUpperCase())}
                         disabled={isSearchingVin}
-                        className="h-14 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-purple-500 uppercase font-mono text-lg tracking-wider transition-all"
+                        className="h-14 rounded-xl bg-zinc-800/50 border-none focus:ring-2 focus:ring-purple-500 uppercase font-mono text-lg tracking-wider transition-all"
                         maxLength={17}
                       />
                       <AnimatePresence>

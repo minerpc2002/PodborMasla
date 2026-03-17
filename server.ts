@@ -10,6 +10,33 @@ async function startServer() {
   const app = express();
   const PORT = 3000;
 
+  app.use(express.json());
+
+  // Proxy route for Gemini API
+  app.all("/api/proxy/gemini/*", async (req, res) => {
+    const path = req.params[0] || "";
+    const targetUrl = `https://generativelanguage.googleapis.com/${path}${req.url.includes("?") ? req.url.substring(req.url.indexOf("?")) : ""}`;
+    
+    try {
+      console.log(`Proxying Gemini request to: ${targetUrl}`);
+      const response = await fetch(targetUrl, {
+        method: req.method,
+        headers: {
+          "Content-Type": req.get("Content-Type") || "application/json",
+          "x-goog-api-key": req.get("x-goog-api-key") || "",
+          "x-goog-api-client": req.get("x-goog-api-client") || ""
+        },
+        body: ["POST", "PUT", "PATCH"].includes(req.method) ? JSON.stringify(req.body) : undefined
+      });
+
+      const data = await response.arrayBuffer();
+      res.status(response.status).send(Buffer.from(data));
+    } catch (error) {
+      console.error("Gemini proxy error:", error);
+      res.status(500).json({ error: "Failed to proxy to Gemini" });
+    }
+  });
+
   // Proxy route for Ravenol and other APIs
   app.get("/api/proxy/ravenol", async (req, res) => {
     const { url } = req.query;

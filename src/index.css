@@ -23,18 +23,18 @@
   }
 
   .liquid-glass {
-    background: var(--glass-bg) !important;
-    backdrop-filter: blur(40px) saturate(200%);
-    -webkit-backdrop-filter: blur(40px) saturate(200%);
-    border: 1px solid var(--glass-border) !important;
+    background: rgba(20, 20, 25, 0.45) !important;
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
     box-shadow: var(--glass-shadow);
   }
 
   .liquid-glass-heavy {
-    background: rgba(15, 15, 20, 0.55) !important;
-    backdrop-filter: blur(60px) saturate(250%);
-    -webkit-backdrop-filter: blur(60px) saturate(250%);
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(15, 15, 20, 0.65) !important;
+    backdrop-filter: blur(30px) saturate(200%);
+    -webkit-backdrop-filter: blur(30px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: var(--glass-shadow);
   }
 }
@@ -57,8 +57,8 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  filter: blur(100px);
-  opacity: 0.55;
+  filter: blur(80px);
+  opacity: 0.7;
 }
 
 .blob {

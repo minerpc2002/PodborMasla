@@ -32,7 +32,7 @@ export default function Layout() {
     (!promoCodeActivatedAt || Date.now() - promoCodeActivatedAt < 7 * 24 * 60 * 60 * 1000);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#020203] text-zinc-50 font-sans transition-colors duration-300">
+    <div className="flex min-h-screen flex-col bg-transparent text-zinc-50 font-sans transition-colors duration-300">
       <AuthModal />
       <PromoModal isOpen={isPromoModalOpen} onClose={() => setIsPromoModalOpen(false)} />
       <FAQModal isOpen={isFAQModalOpen} onClose={() => setIsFAQModalOpen(false)} />

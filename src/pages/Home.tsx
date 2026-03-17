@@ -78,7 +78,7 @@ export default function Home() {
           whileTap={{ scale: 0.98 }}
         >
           <Link to="/search" state={{ tab: 'manual' }}>
-            <Card className="rounded-3xl border-none shadow-sm bg-zinc-900 hover:shadow-xl transition-all group">
+            <Card className="rounded-3xl border-none shadow-sm liquid-glass hover:shadow-xl transition-all group">
               <CardHeader className="p-6">
                 <div className="flex items-center gap-4">
                   <div className="p-3.5 bg-zinc-800 text-zinc-300 rounded-2xl group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
@@ -105,7 +105,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="mt-2 p-5 rounded-3xl bg-zinc-900 shadow-sm"
+        className="mt-2 p-5 rounded-3xl liquid-glass shadow-sm"
       >
         <h3 className="font-display font-semibold mb-3 text-sm text-zinc-500 uppercase tracking-wider">Официальные партнеры</h3>
         <div className="flex flex-wrap gap-2">

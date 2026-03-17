@@ -67,11 +67,14 @@ function getApiKey() {
 
 function getGeminiClient() {
   const apiKey = getApiKey();
+  // Use absolute URL for baseUrl to avoid "Invalid URL" errors in some environments
+  const baseUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/api/proxy/gemini`
+    : undefined;
+
   return new GoogleGenAI({ 
     apiKey,
-    httpOptions: {
-      baseUrl: '/api/proxy/gemini'
-    }
+    httpOptions: baseUrl ? { baseUrl } : undefined
   });
 }
 
