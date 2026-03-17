@@ -25,16 +25,18 @@ export default function App() {
         <div className="blob w-[700px] h-[700px] bg-fuchsia-500/30 bottom-[-20%] right-[-10%] animation-delay-2000" />
         <div className="blob w-[500px] h-[500px] bg-cyan-400/30 top-[30%] right-[20%] animation-delay-4000" />
       </div>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="search" element={<Search />} />
-          <Route path="result/:id" element={<Result />} />
-          <Route path="favorites" element={<Favorites />} />
-          <Route path="history" element={<History />} />
-          <Route path="*" element={<Home />} />
-        </Route>
-      </Routes>
+      <div className="relative z-10">
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Home />} />
+            <Route path="search" element={<Search />} />
+            <Route path="result/:id" element={<Result />} />
+            <Route path="favorites" element={<Favorites />} />
+            <Route path="history" element={<History />} />
+            <Route path="*" element={<Home />} />
+          </Route>
+        </Routes>
+      </div>
     </BrowserRouter>
   );
 }
