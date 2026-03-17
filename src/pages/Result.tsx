@@ -106,13 +106,13 @@ export default function Result() {
           {car.generation} ({car.year_from}-{car.year_to})
         </p>
         <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-2 py-1 bg-zinc-800 rounded-md text-sm font-medium">
+          <span className="px-2 py-1 bg-white/5 backdrop-blur-sm border border-white/5 rounded-md text-sm font-medium">
             {car.engine} {car.engine_type === 'petrol' ? 'Бензин' : car.engine_type === 'diesel' ? 'Дизель' : car.engine_type === 'hybrid' ? 'Гибрид' : 'Газ'}
           </span>
-          <span className="px-2 py-1 bg-zinc-800 rounded-md text-sm font-medium">
+          <span className="px-2 py-1 bg-white/5 backdrop-blur-sm border border-white/5 rounded-md text-sm font-medium">
             Код: {car.engine_code}
           </span>
-          <span className="px-2 py-1 bg-zinc-800 rounded-md text-sm font-medium">
+          <span className="px-2 py-1 bg-white/5 backdrop-blur-sm border border-white/5 rounded-md text-sm font-medium">
             КПП: {car.transmission_type.toUpperCase()}
           </span>
         </div>
@@ -128,10 +128,10 @@ export default function Result() {
             viewport={{ once: true }}
             transition={{ delay: idx * 0.1, duration: 0.5 }}
           >
-            <Card className="overflow-hidden border-zinc-800">
-              <div className="bg-zinc-900 px-4 py-3 border-b border-zinc-800 flex justify-between items-center">
+            <Card className="overflow-hidden border-white/5 liquid-glass">
+              <div className="bg-white/5 px-4 py-3 border-b border-white/5 flex justify-between items-center">
                 <h3 className="font-semibold text-lg">{rec.unit}</h3>
-                <span className="text-sm font-mono bg-zinc-950 px-2 py-1 rounded shadow-sm">
+                <span className="text-sm font-mono bg-black/40 px-2 py-1 rounded shadow-sm border border-white/5">
                   {rec.volume_liters} л
                 </span>
               </div>

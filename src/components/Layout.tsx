@@ -41,7 +41,7 @@ export default function Layout() {
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 w-full liquid-glass border-b border-zinc-800/20"
+        className="sticky top-0 z-50 w-full liquid-glass border-b border-white/5 shadow-xl"
       >
         <div className="flex h-16 items-center justify-between px-6 max-w-md mx-auto w-full">
           <Link to="/" className="flex items-center gap-3 font-display font-bold text-lg tracking-tight">
@@ -125,7 +125,7 @@ export default function Layout() {
         className="fixed bottom-6 left-0 right-0 z-50 px-4 pb-safe pointer-events-none"
       >
         <div className="max-w-md mx-auto pointer-events-auto">
-          <div className="flex h-16 items-center justify-around px-2 liquid-glass-heavy rounded-full nav-shadow">
+          <div className="flex h-16 items-center justify-around px-2 liquid-glass-heavy rounded-full nav-shadow border border-white/10">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));

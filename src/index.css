@@ -23,25 +23,25 @@
   }
 
   .liquid-glass {
-    background: rgba(25, 25, 35, 0.5) !important;
+    background: rgba(25, 25, 35, 0.65) !important;
     backdrop-filter: blur(25px) saturate(200%);
     -webkit-backdrop-filter: blur(25px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
   }
 
   .liquid-glass-heavy {
-    background: rgba(20, 20, 30, 0.75) !important;
+    background: rgba(20, 20, 30, 0.85) !important;
     backdrop-filter: blur(40px) saturate(220%);
     -webkit-backdrop-filter: blur(40px) saturate(220%);
-    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
     box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
   }
 }
 
 body {
   -webkit-tap-highlight-color: transparent;
-  background-color: #010103;
+  background-color: #000002;
   transition: background-color 0.3s ease;
   overflow-x: hidden;
   color: #f8fafc;
@@ -58,7 +58,7 @@ body {
   pointer-events: none;
   overflow: hidden;
   filter: blur(100px);
-  opacity: 0.85;
+  opacity: 0.65;
 }
 
 .blob {

@@ -115,7 +115,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5 + (i * 0.05) }}
-              className="px-4 py-2 bg-zinc-800/50 rounded-xl text-sm font-semibold text-zinc-300"
+              className="px-4 py-2 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-sm font-semibold text-zinc-300"
             >
               {partner}
             </motion.span>

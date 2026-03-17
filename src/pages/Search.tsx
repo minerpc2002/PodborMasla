@@ -212,7 +212,7 @@ export default function Search() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Пробег</label>
-          <Select value={mileage} onChange={(e) => setMileage(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
+          <Select value={mileage} onChange={(e) => setMileage(e.target.value)} className="rounded-xl bg-zinc-900/50 border border-white/5 focus:ring-2 focus:ring-blue-500 transition-all">
             <option value="">Не указан</option>
             <option value="До 50 000 км">До 50 000 км</option>
             <option value="50 000 - 100 000 км">50 000 - 100 000 км</option>
@@ -222,7 +222,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Условия эксплуатации</label>
-          <Select value={conditions} onChange={(e) => setConditions(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
+          <Select value={conditions} onChange={(e) => setConditions(e.target.value)} className="rounded-xl bg-zinc-900/50 border border-white/5 focus:ring-2 focus:ring-blue-500 transition-all">
             <option value="">Обычные</option>
             <option value="Город (пробки)">Город (пробки)</option>
             <option value="Трасса">Трасса</option>
@@ -233,7 +233,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Расположение руля</label>
-          <Select value={handDrive} onChange={(e) => setHandDrive(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
+          <Select value={handDrive} onChange={(e) => setHandDrive(e.target.value)} className="rounded-xl bg-zinc-900/50 border border-white/5 focus:ring-2 focus:ring-blue-500 transition-all">
             <option value="">Не указано</option>
             <option value="Левый">Левый</option>
             <option value="Правый">Правый</option>
@@ -241,7 +241,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Тип топлива</label>
-          <Select value={fuelType} onChange={(e) => setFuelType(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
+          <Select value={fuelType} onChange={(e) => setFuelType(e.target.value)} className="rounded-xl bg-zinc-900/50 border border-white/5 focus:ring-2 focus:ring-blue-500 transition-all">
             <option value="">Не указано</option>
             <option value="Бензин">Бензин</option>
             <option value="Дизель">Дизель</option>
@@ -429,7 +429,7 @@ export default function Search() {
                           value={year}
                           onChange={(e) => setYear(e.target.value)}
                           disabled={isSearchingManual}
-                          className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                          className="h-12 rounded-xl bg-zinc-900/50 border border-white/5 focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                         >
                           <option value="">Выберите год</option>
                           {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
@@ -592,7 +592,7 @@ export default function Search() {
                           value={transmission}
                           onChange={(e) => setTransmission(e.target.value)}
                           disabled={isSearchingManual}
-                          className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
+                          className="h-12 rounded-xl bg-zinc-900/50 border border-white/5 focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                         >
                           <option value="">Выберите трансмиссию</option>
                           <option value="АКПП">АКПП (Автомат)</option>
