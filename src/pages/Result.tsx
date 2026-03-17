@@ -1,17 +1,18 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Share2, Heart, Copy, Info, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Share2, Heart, Copy, Info, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { mockCars } from '../data/mockData';
 import { useAppStore } from '../store/useAppStore';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Result() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { favorites, addFavorite, removeFavorite, addToHistory, dynamicCars } = useAppStore();
+  const [expandedBrands, setExpandedBrands] = useState<Record<string, boolean>>({});
   
   const car = mockCars.find(c => c.id === id) || dynamicCars.find(c => c.id === id);
   const isFavorite = favorites.some(f => f.id === id);
@@ -42,6 +43,14 @@ export default function Result() {
     } else {
       addFavorite(car);
     }
+  };
+
+  const toggleBrand = (unitIdx: number, brand: string) => {
+    const key = `${unitIdx}-${brand}`;
+    setExpandedBrands(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
   };
 
   const handleShare = async () => {
@@ -154,70 +163,132 @@ export default function Result() {
                     Рекомендуемые продукты
                   </h4>
                   
-                  {rec.products && rec.products.length > 0 ? (
-                    <Tabs defaultValue={rec.products[0]?.brand_name} className="w-full">
-                      <TabsList className="w-full grid grid-cols-3 h-10 mb-4">
-                        {Array.from(new Set(rec.products.map(p => p.brand_name))).map(brand => (
-                          <TabsTrigger key={brand} value={brand} className="text-xs">
-                            {brand}
-                          </TabsTrigger>
-                        ))}
-                      </TabsList>
-                      
-                      {Array.from(new Set(rec.products.map(p => p.brand_name))).map(brand => (
-                        <TabsContent key={brand} value={brand} className="space-y-3 mt-0">
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={brand}
-                              initial={{ opacity: 0, x: 10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              exit={{ opacity: 0, x: -10 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              {rec.products.filter(p => p.brand_name === brand).map(product => (
-                                <div key={product.id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 shadow-sm mb-3 last:mb-0">
-                                  <div className="flex justify-between items-start mb-2">
-                                    <h5 className="font-bold text-blue-400 leading-tight">
-                                      {product.product_name}
-                                    </h5>
-                                  </div>
-                                  <p className="text-xs text-zinc-400 mb-2">
-                                    {product.description}
-                                  </p>
-                                  <div className="grid grid-cols-2 gap-2 mb-3">
-                                    {product.base_technology && (
-                                      <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
-                                        База: <span className="text-zinc-100">{product.base_technology}</span>
+                  <div className="pt-1">
+                    {rec.products && rec.products.length > 0 ? (
+                      <Tabs defaultValue={rec.products[0]?.brand_name} className="w-full">
+                        <TabsList className="w-full grid grid-cols-3 h-10 mb-4">
+                          {Array.from(new Set(rec.products.map(p => p.brand_name))).map(brand => (
+                            <TabsTrigger key={brand} value={brand} className="text-xs">
+                              {brand}
+                            </TabsTrigger>
+                          ))}
+                        </TabsList>
+                        
+                        {Array.from(new Set(rec.products.map(p => p.brand_name))).map(brand => {
+                          const brandProducts = rec.products.filter(p => p.brand_name === brand);
+                          const isExpanded = expandedBrands[`${idx}-${brand}`];
+                          
+                          return (
+                            <TabsContent key={brand} value={brand} className="space-y-3 mt-0">
+                              <AnimatePresence mode="wait">
+                                <motion.div
+                                  key={brand}
+                                  initial={{ opacity: 0, x: 10 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  exit={{ opacity: 0, x: -10 }}
+                                  transition={{ duration: 0.2 }}
+                                >
+                                  {/* Show first product */}
+                                  {brandProducts.length > 0 && (
+                                    <div className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 shadow-sm mb-3">
+                                      <div className="flex justify-between items-start mb-2">
+                                        <h5 className="font-bold text-blue-400 leading-tight">
+                                          {brandProducts[0].product_name}
+                                        </h5>
                                       </div>
-                                    )}
-                                    {product.article_number && (
-                                      <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
-                                        Артикул: <span className="text-zinc-100">{product.article_number}</span>
+                                      <p className="text-xs text-zinc-400 mb-2">
+                                        {brandProducts[0].description}
+                                      </p>
+                                      <div className="grid grid-cols-2 gap-2 mb-3">
+                                        {brandProducts[0].base_technology && (
+                                          <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
+                                            База: <span className="text-zinc-100">{brandProducts[0].base_technology}</span>
+                                          </div>
+                                        )}
+                                        {brandProducts[0].article_number && (
+                                          <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
+                                            Артикул: <span className="text-zinc-100">{brandProducts[0].article_number}</span>
+                                          </div>
+                                        )}
                                       </div>
-                                    )}
-                                  </div>
-                                  <div className="flex flex-wrap gap-1">
-                                    {product.approvals.slice(0, 3).map(app => (
-                                      <span key={app} className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-300">
-                                        {app}
-                                      </span>
-                                    ))}
-                                    {product.approvals.length > 3 && (
-                                      <span className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-300">
-                                        +{product.approvals.length - 3}
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              ))}
-                            </motion.div>
-                          </AnimatePresence>
-                        </TabsContent>
-                      ))}
-                    </Tabs>
-                  ) : (
-                    <p className="text-sm text-zinc-500">Нет рекомендованных продуктов</p>
-                  )}
+                                      <div className="flex flex-wrap gap-1">
+                                        {brandProducts[0].approvals.map(app => (
+                                          <span key={app} className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-300">
+                                            {app}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {/* Shutter for more products */}
+                                  {brandProducts.length > 1 && (
+                                    <>
+                                      <button 
+                                        onClick={() => toggleBrand(idx, brand)}
+                                        className="w-full flex items-center justify-center gap-2 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors border border-dashed border-zinc-800 rounded-lg mb-3"
+                                      >
+                                        {isExpanded ? (
+                                          <>Скрыть варианты <ChevronUp size={14} /></>
+                                        ) : (
+                                          <>Показать еще {brandProducts.length - 1} вар. <ChevronDown size={14} /></>
+                                        )}
+                                      </button>
+
+                                      <AnimatePresence>
+                                        {isExpanded && (
+                                          <motion.div
+                                            initial={{ height: 0, opacity: 0 }}
+                                            animate={{ height: 'auto', opacity: 1 }}
+                                            exit={{ height: 0, opacity: 0 }}
+                                            className="overflow-hidden space-y-3"
+                                          >
+                                            {brandProducts.slice(1).map(product => (
+                                              <div key={product.id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 shadow-sm">
+                                                <div className="flex justify-between items-start mb-2">
+                                                  <h5 className="font-bold text-blue-400 leading-tight">
+                                                    {product.product_name}
+                                                  </h5>
+                                                </div>
+                                                <p className="text-xs text-zinc-400 mb-2">
+                                                  {product.description}
+                                                </p>
+                                                <div className="grid grid-cols-2 gap-2 mb-3">
+                                                  {product.base_technology && (
+                                                    <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
+                                                      База: <span className="text-zinc-100">{product.base_technology}</span>
+                                                    </div>
+                                                  )}
+                                                  {product.article_number && (
+                                                    <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
+                                                      Артикул: <span className="text-zinc-100">{product.article_number}</span>
+                                                    </div>
+                                                  )}
+                                                </div>
+                                                <div className="flex flex-wrap gap-1">
+                                                  {product.approvals.map(app => (
+                                                    <span key={app} className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-300">
+                                                      {app}
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            ))}
+                                          </motion.div>
+                                        )}
+                                      </AnimatePresence>
+                                    </>
+                                  )}
+                                </motion.div>
+                              </AnimatePresence>
+                            </TabsContent>
+                          );
+                        })}
+                      </Tabs>
+                    ) : (
+                      <p className="text-sm text-zinc-500">Нет рекомендованных продуктов</p>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>

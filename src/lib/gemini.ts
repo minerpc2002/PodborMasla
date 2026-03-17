@@ -66,8 +66,9 @@ function getApiKey() {
 
 
 const FREE_MODELS = [
+  'gemini-3-flash-preview',
   'gemini-3.1-pro-preview',
-  'gemini-3-flash-preview'
+  'gemini-2.5-flash'
 ];
 
 async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
@@ -85,30 +86,43 @@ async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<a
       const errorMsg = error.message || '';
       console.error(`Gemini error (${currentModel}):`, errorMsg);
 
+      const isQuotaError = errorMsg.includes('429') || 
+                          errorMsg.includes('quota') || 
+                          errorMsg.includes('RESOURCE_EXHAUSTED');
+
       const isClientError = errorMsg.includes('400') || 
                            errorMsg.includes('INVALID_ARGUMENT') ||
                            errorMsg.includes('401') ||
                            errorMsg.includes('403') ||
                            errorMsg.includes('PERMISSION_DENIED');
       
-      if (isClientError) {
-        throw error; // Don't retry on client errors
+      if (isClientError && !isQuotaError) {
+        throw error; // Don't retry on fatal client errors
       }
 
-      // Retry on everything else (429, 500, 503, Rpc failed, etc.)
+      // If it's a quota error, switch model immediately and don't wait too long
+      if (isQuotaError) {
+        console.warn(`Лимит исчерпан для ${currentModel}. Переключение на следующую модель...`);
+        modelIndex = (modelIndex + 1) % FREE_MODELS.length;
+        attempt++;
+        await new Promise(resolve => setTimeout(resolve, 200));
+        continue;
+      }
+
+      // For other transient errors (500, 503, RPC), use exponential backoff
       modelIndex = (modelIndex + 1) % FREE_MODELS.length;
       attempt++;
       
       if (attempt < totalAttempts) {
         const delay = Math.pow(2, Math.floor(attempt / FREE_MODELS.length)) * 1000;
-        console.warn(`Retrying in ${delay}ms with ${FREE_MODELS[modelIndex]}...`);
+        console.warn(`Временная ошибка сервера. Повтор через ${delay}ms с моделью ${FREE_MODELS[modelIndex]}...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
       throw error;
     }
   }
-  throw new Error('Все доступные модели ИИ временно недоступны. Пожалуйста, попробуйте позже.');
+  throw new Error('Все доступные модели ИИ временно перегружены. Пожалуйста, попробуйте через минуту.');
 }
 
 async function getGeminiVinHint(ai: any, vin: string): Promise<string | null> {
@@ -284,35 +298,51 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
   const apiKey = getApiKey();
   const ai = new GoogleGenAI({ apiKey });
 
-  onStatusChange?.('Поиск в базе данных...');
+  onStatusChange?.('Поиск в каталоге...');
   
-  // Try to get hint from both NHTSA and Gemini for maximum accuracy
-  const [vehicle, geminiHint] = await Promise.all([
-    decodeVin(vin),
-    getGeminiVinHint(ai, vin)
-  ]);
-  
-  const hint = geminiHint || (vehicle ? `${vehicle.make} ${vehicle.model} ${vehicle.year}` : undefined);
-  
-  const ravenolData = await fetchRavenolData(vin, hint);
-  
+  // 1. Try Ravenol by VIN directly first (highest priority)
+  let ravenolData = await fetchRavenolData(vin);
+  let vehicleHint: string | undefined;
+
+  // 2. If not found, try NHTSA Decoder
   if (!ravenolData) {
-    throw new Error('Автомобиль с таким VIN не найден в каталоге Ravenol. Пожалуйста, проверьте VIN или воспользуйтесь ручным поиском.');
+    onStatusChange?.('Идентификация автомобиля...');
+    const vehicle = await decodeVin(vin);
+    if (vehicle) {
+      vehicleHint = `${vehicle.make} ${vehicle.model} ${vehicle.year}`;
+      onStatusChange?.(`Поиск технических данных...`);
+      ravenolData = await fetchRavenolData(vin, vehicleHint);
+    }
   }
 
-  let prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
-1. Identify: VIN ${vin}. ${vehicle ? `NHTSA hint: ${vehicle.make} ${vehicle.model} ${vehicle.year}.` : ''}
-2. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this specific vehicle.
-<ravenol_data>
-${ravenolData}
-</ravenol_data>
+  // 3. If still not found, try Gemini for a hint (neural network as last resort for decoding)
+  if (!ravenolData) {
+    onStatusChange?.('Интеллектуальный анализ VIN...');
+    const geminiHint = await getGeminiVinHint(ai, vin);
+    if (geminiHint) {
+      vehicleHint = geminiHint;
+      onStatusChange?.(`Поиск технических данных...`);
+      ravenolData = await fetchRavenolData(vin, geminiHint);
+    }
+  }
+  
+  if (!ravenolData) {
+    throw new Error('Автомобиль с таким VIN не найден. Пожалуйста, проверьте VIN или воспользуйтесь ручным поиском.');
+  }
+
+  let prompt = `Expert Oil Selector.
+1. Identify: VIN ${vin}. ${vehicleHint ? `Vehicle hint: ${vehicleHint}.` : ''}
+2. SOURCE OF TRUTH: Use the following extracted data. This data is the FINAL AUTHORITY for this specific vehicle.
+<technical_data>
+${ravenolData.substring(0, 50000)}
+</technical_data>
 3. MANDATORY TASK: 
-   - You MUST identify the car EXACTLY as it is written in the <ravenol_data>. 
-   - If <ravenol_data> says it is a "BMW X4", you MUST return "BMW" and "X4", even if you think it should be something else.
-   - Extract ALL exact volumes, ALL OEM specifications, and ALL factory viscosities from the <ravenol_data>.
+   - You MUST identify the car EXACTLY as it is written in the <technical_data>. 
+   - Extract ALL exact volumes, ALL OEM specifications, and ALL factory viscosities from the <technical_data>.
 4. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
-   - For "factory_viscosity", list ALL viscosities mentioned in the Ravenol catalog (e.g., "0W-20, 5W-30").
+   - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
+   - For "factory_viscosity", list ALL viscosities mentioned in the catalog (e.g., "0W-20, 5W-30").
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
    - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
    - If the car is Japanese, also include Moly Green.
@@ -370,12 +400,12 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
 
   const query = `${brand} ${model} ${year || ''} ${body || ''} ${engine || ''} ${transmission || ''}`.trim();
   
-  onStatusChange?.('Поиск в базе данных...');
+  onStatusChange?.('Поиск технических данных...');
   let ravenolData = await fetchRavenolData(query);
 
   // Fallback: if specific query fails, try a simpler one (Brand + Model + Body)
   if (!ravenolData && (year || body || engine)) {
-    onStatusChange?.('Уточнение поиска...');
+    onStatusChange?.('Уточнение параметров...');
     const simplerQuery = `${brand} ${model} ${body || ''}`.trim();
     if (simplerQuery !== query) {
       ravenolData = await fetchRavenolData(simplerQuery, query);
@@ -384,31 +414,32 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
 
   let prompt = '';
   if (!ravenolData) {
-    onStatusChange?.('Поиск в базе ИИ (Ravenol недоступен)...');
+    onStatusChange?.('Интеллектуальный подбор...');
     prompt = `Expert Oil Selector. 
-    WARNING: podbor.ravenol.ru is currently unavailable or car not found. 
     TASK: Use your internal knowledge to provide the most accurate technical data for: ${query}.
     1. Identify the car: ${brand} ${model} ${year || ''} ${body || ''} ${engine || ''} ${transmission || ''}.
     2. Provide EXACT volumes, OEM specifications, and viscosities.
     3. RECOMMENDATIONS:
+       - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
        - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
        - If the car is Japanese, also include Moly Green.
     4. NO Liqui Moly.
     5. OUTPUT: Return JSON (Russian text). 
     6. IMPORTANT: Add a note in the description of the first unit that this data is provided by AI because the official catalog was unreachable.`;
   } else {
-    prompt = `Expert Oil Selector. EXCLUSIVE SOURCE: podbor.ravenol.ru (Ravenol Russia).
+    prompt = `Expert Oil Selector.
 Vehicle: ${query}.
-1. SOURCE OF TRUTH: Use the following extracted data from podbor.ravenol.ru. This data is the FINAL AUTHORITY for this vehicle.
-<ravenol_data>
-${ravenolData.substring(0, 100000)}
-</ravenol_data>
+1. SOURCE OF TRUTH: Use the following extracted data. This data is the FINAL AUTHORITY for this vehicle.
+<technical_data>
+${ravenolData.substring(0, 50000)}
+</technical_data>
 2. MANDATORY TASK: 
-   - You MUST identify the car EXACTLY as it is written in the <ravenol_data>.
-   - Extract ALL exact volumes, ALL OEM specifications, and ALL factory viscosities from the <ravenol_data>.
+   - You MUST identify the car EXACTLY as it is written in the <technical_data>.
+   - Extract ALL exact volumes, ALL OEM specifications, and ALL factory viscosities from the <technical_data>.
 3. RECOMMENDATIONS:
    - Provide recommendations based on the factory data.
-   - For "factory_viscosity", list ALL viscosities mentioned in the Ravenol catalog (e.g., "0W-20, 5W-30").
+   - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
+   - For "factory_viscosity", list ALL viscosities mentioned in the catalog (e.g., "0W-20, 5W-30").
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
    - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
    - If the car is Japanese, also include Moly Green.
