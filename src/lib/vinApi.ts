@@ -10,7 +10,14 @@ export async function decodeVin(vin: string): Promise<DecodedVehicle | null> {
   const fetchPromise = (async () => {
     try {
       const apiUrl = `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvalues/${vin}?format=json`;
-      const response = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(apiUrl)}`);
+      let response = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(apiUrl)}`);
+      
+      // Fallback to corsproxy.io if our proxy fails
+      if (!response.ok) {
+        console.warn('Vercel proxy failed for NHTSA API, trying corsproxy.io...');
+        response = await fetch(`https://corsproxy.io/?${encodeURIComponent(apiUrl)}`);
+      }
+      
       if (!response.ok) return null;
       const data = await response.json();
       

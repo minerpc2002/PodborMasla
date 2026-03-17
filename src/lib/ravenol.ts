@@ -2,7 +2,14 @@ export async function fetchRavenolData(query: string, hint?: string): Promise<st
   try {
     // 1. Search for the query (VIN or car details)
     const searchUrl = `https://podbor.ravenol.ru/search/?q=${encodeURIComponent(query)}`;
-    const searchRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(searchUrl)}`);
+    let searchRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(searchUrl)}`);
+    
+    // Fallback to corsproxy.io if our proxy fails (e.g., Vercel IP blocked)
+    if (!searchRes.ok) {
+      console.warn('Vercel proxy failed for Ravenol search, trying corsproxy.io...');
+      searchRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(searchUrl)}`);
+    }
+    
     if (!searchRes.ok) return null;
     const searchHtml = await searchRes.text();
 
@@ -51,7 +58,14 @@ export async function fetchRavenolData(query: string, hint?: string): Promise<st
       const carUrl = `https://podbor.ravenol.ru${bestMatch}`;
 
       // 3. Fetch the car page via proxy
-      const carRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(carUrl)}`);
+      let carRes = await fetch(`/api/proxy/ravenol?url=${encodeURIComponent(carUrl)}`);
+      
+      // Fallback to corsproxy.io if our proxy fails
+      if (!carRes.ok) {
+        console.warn('Vercel proxy failed for Ravenol car page, trying corsproxy.io...');
+        carRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(carUrl)}`);
+      }
+      
       if (!carRes.ok) return null;
       carHtml = await carRes.text();
     }

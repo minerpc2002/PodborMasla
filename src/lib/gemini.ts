@@ -326,11 +326,25 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
     }
   }
   
-  if (!ravenolData) {
+  if (!ravenolData && !vehicleHint) {
     throw new Error('Автомобиль с таким VIN не найден. Пожалуйста, проверьте VIN или воспользуйтесь ручным поиском.');
   }
 
-  let prompt = `Expert Oil Selector.
+  let prompt = '';
+  if (!ravenolData) {
+    prompt = `Expert Oil Selector.
+1. Identify: VIN ${vin}. Vehicle hint: ${vehicleHint}.
+2. TASK: Use your internal knowledge to provide the most accurate technical data for this vehicle.
+3. RECOMMENDATIONS:
+   - Provide recommendations based on factory data.
+   - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
+   - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
+   - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
+   - If the car is Japanese, also include Moly Green.
+4. NO Liqui Moly.
+5. OUTPUT: Return JSON (Russian text).`;
+  } else {
+    prompt = `Expert Oil Selector.
 1. Identify: VIN ${vin}. ${vehicleHint ? `Vehicle hint: ${vehicleHint}.` : ''}
 2. SOURCE OF TRUTH: Use the following extracted data. This data is the FINAL AUTHORITY for this specific vehicle.
 <technical_data>
@@ -348,6 +362,7 @@ ${ravenolData.substring(0, 50000)}
    - If the car is Japanese, also include Moly Green.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
+  }
 
   onStatusChange?.('Анализ данных...');
   try {
