@@ -7,26 +7,72 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 }
 
+@layer base {
+  :root {
+    --glass-bg: rgba(15, 15, 20, 0.75);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+    --accent-primary: #60a5fa;
+    --accent-secondary: #a78bfa;
+  }
+}
+
 @layer utilities {
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .liquid-glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .liquid-glass-heavy {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
   }
 }
 
 body {
   -webkit-tap-highlight-color: transparent;
-  background-color: #f8fafc; /* Very light slate for modern feel */
+  background-color: #020203;
+  transition: background-color 0.3s ease;
+  overflow-x: hidden;
+  color: #f8fafc;
 }
 
-.dark body {
-  background-color: #09090b; /* Deep zinc */
+/* Background blobs for liquid feel */
+.bg-blobs {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  overflow: hidden;
+  filter: blur(80px);
+  opacity: 0.2;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  animation: float 20s infinite alternate;
+}
+
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(100px, 100px) scale(1.2); }
 }
 
 /* Modern floating nav shadow */
 .nav-shadow {
-  box-shadow: 0 10px 40px -10px rgba(0,0,0,0.1);
-}
-.dark .nav-shadow {
   box-shadow: 0 10px 40px -10px rgba(0,0,0,0.5);
 }
 
@@ -47,10 +93,32 @@ body {
 }
 
 .shimmer-ai {
-  background: linear-gradient(90deg, #9333ea, #3b82f6, #9333ea);
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 3s linear infinite;
   display: inline-block;
+}
+
+@keyframes shimmer-ai-loader {
+  0% { transform: rotate(0deg) scale(1); filter: hue-rotate(0deg); }
+  50% { transform: rotate(180deg) scale(1.2); filter: hue-rotate(180deg); }
+  100% { transform: rotate(360deg) scale(1); filter: hue-rotate(360deg); }
+}
+
+.ai-loader {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: #3b82f6;
+  border-right-color: #8b5cf6;
+  border-radius: 50%;
+  animation: shimmer-ai-loader 1s infinite linear;
+}
+
+.shimmer-ai-bg {
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #3b82f6);
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
 }

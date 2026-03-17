@@ -19,7 +19,7 @@ export default function Favorites() {
           <Heart className="text-red-500" fill="currentColor" />
           Избранное
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400">
+        <p className="text-zinc-400">
           Сохраненные автомобили для быстрого доступа
         </p>
       </div>
@@ -28,11 +28,11 @@ export default function Favorites() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-500 dark:text-zinc-400"
+          className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-400"
         >
           <Car size={48} className="opacity-20" />
           <p>Список избранного пуст</p>
-          <Link to="/search" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
+          <Link to="/search" className="text-blue-400 font-medium hover:underline">
             Перейти к подбору
           </Link>
         </motion.div>

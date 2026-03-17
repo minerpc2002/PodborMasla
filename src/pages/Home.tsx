@@ -19,9 +19,9 @@ export default function Home() {
       >
         <h1 className="text-4xl font-display font-bold tracking-tight leading-tight">
           Умный подбор<br/>
-          <span className="text-blue-600 dark:text-blue-500">масел и жидкостей</span>
+          <span className="text-blue-500">масел и жидкостей</span>
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-base">
+        <p className="text-zinc-400 text-base">
           Профессиональный сервис для точного подбора технических жидкостей
         </p>
       </motion.div>
@@ -78,22 +78,22 @@ export default function Home() {
           whileTap={{ scale: 0.98 }}
         >
           <Link to="/search" state={{ tab: 'manual' }}>
-            <Card className="rounded-3xl border-none shadow-sm bg-white dark:bg-zinc-900 hover:shadow-xl transition-all group">
+            <Card className="rounded-3xl border-none shadow-sm bg-zinc-900 hover:shadow-xl transition-all group">
               <CardHeader className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="p-3.5 bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 rounded-2xl group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
+                  <div className="p-3.5 bg-zinc-800 text-zinc-300 rounded-2xl group-hover:scale-110 group-hover:bg-blue-50 group-hover:text-blue-600 transition-all">
                     <Search size={24} />
                   </div>
                   <div className="flex-1">
                     <CardTitle className="text-lg font-display flex items-center gap-2">
                       По автомобилю
-                      <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
+                      <span className="px-2 py-0.5 bg-blue-900/50 text-blue-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
                         Beta
                       </span>
                     </CardTitle>
                     <CardDescription className="text-sm mt-0.5">Марка, модель, год, двигатель</CardDescription>
                   </div>
-                  <ArrowRight size={20} className="text-zinc-300 dark:text-zinc-700 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
+                  <ArrowRight size={20} className="text-zinc-700 group-hover:text-blue-600 group-hover:translate-x-1 transition-all" />
                 </div>
               </CardHeader>
             </Card>
@@ -105,7 +105,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.5 }}
-        className="mt-2 p-5 rounded-3xl bg-white dark:bg-zinc-900 shadow-sm"
+        className="mt-2 p-5 rounded-3xl bg-zinc-900 shadow-sm"
       >
         <h3 className="font-display font-semibold mb-3 text-sm text-zinc-500 uppercase tracking-wider">Официальные партнеры</h3>
         <div className="flex flex-wrap gap-2">
@@ -115,7 +115,7 @@ export default function Home() {
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.5 + (i * 0.05) }}
-              className="px-4 py-2 bg-slate-50 dark:bg-zinc-800/50 rounded-xl text-sm font-semibold text-zinc-700 dark:text-zinc-300"
+              className="px-4 py-2 bg-zinc-800/50 rounded-xl text-sm font-semibold text-zinc-300"
             >
               {partner}
             </motion.span>

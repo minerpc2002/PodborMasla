@@ -87,23 +87,23 @@ export default function Result() {
         transition={{ delay: 0.1, duration: 0.5 }}
         className="space-y-1"
       >
-        <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent ${isDynamic ? 'bg-purple-600 text-white hover:bg-purple-600/80' : 'bg-zinc-900 text-zinc-50 hover:bg-zinc-900/80 dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/80'}`}>
+        <div className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent ${isDynamic ? 'bg-purple-600 text-white hover:bg-purple-600/80' : 'bg-zinc-800 text-zinc-100 hover:bg-zinc-800/90'}`}>
           {isDynamic ? 'AI Подбор по VIN' : 'Точное совпадение'}
         </div>
         <h1 className="text-3xl font-bold tracking-tight mt-2">
           {car.brand} {car.model}
         </h1>
-        <p className="text-zinc-500 dark:text-zinc-400 text-lg">
+        <p className="text-zinc-400 text-lg">
           {car.generation} ({car.year_from}-{car.year_to})
         </p>
         <div className="flex flex-wrap gap-2 mt-3">
-          <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md text-sm font-medium">
+          <span className="px-2 py-1 bg-zinc-800 rounded-md text-sm font-medium">
             {car.engine} {car.engine_type === 'petrol' ? 'Бензин' : car.engine_type === 'diesel' ? 'Дизель' : car.engine_type === 'hybrid' ? 'Гибрид' : 'Газ'}
           </span>
-          <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md text-sm font-medium">
+          <span className="px-2 py-1 bg-zinc-800 rounded-md text-sm font-medium">
             Код: {car.engine_code}
           </span>
-          <span className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 rounded-md text-sm font-medium">
+          <span className="px-2 py-1 bg-zinc-800 rounded-md text-sm font-medium">
             КПП: {car.transmission_type.toUpperCase()}
           </span>
         </div>
@@ -119,36 +119,36 @@ export default function Result() {
             viewport={{ once: true }}
             transition={{ delay: idx * 0.1, duration: 0.5 }}
           >
-            <Card className="overflow-hidden border-zinc-200 dark:border-zinc-800">
-              <div className="bg-zinc-100 dark:bg-zinc-900 px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex justify-between items-center">
+            <Card className="overflow-hidden border-zinc-800">
+              <div className="bg-zinc-900 px-4 py-3 border-b border-zinc-800 flex justify-between items-center">
                 <h3 className="font-semibold text-lg">{rec.unit}</h3>
-                <span className="text-sm font-mono bg-white dark:bg-zinc-950 px-2 py-1 rounded shadow-sm">
+                <span className="text-sm font-mono bg-zinc-950 px-2 py-1 rounded shadow-sm">
                   {rec.volume_liters} л
                 </span>
               </div>
               <CardContent className="p-0">
-                <div className="p-4 grid grid-cols-2 gap-4 text-sm border-b border-zinc-100 dark:border-zinc-800/50">
+                <div className="p-4 grid grid-cols-2 gap-4 text-sm border-b border-zinc-800/50">
                   <div>
-                    <p className="text-zinc-500 dark:text-zinc-400 mb-1">Допуск</p>
+                    <p className="text-zinc-400 mb-1">Допуск</p>
                     <p className="font-medium">{rec.approval}</p>
                   </div>
                   <div>
-                    <p className="text-zinc-500 dark:text-zinc-400 mb-1">Интервал замены</p>
+                    <p className="text-zinc-400 mb-1">Интервал замены</p>
                     <p className="font-medium">{rec.replacement_interval}</p>
                   </div>
-                  <div className="col-span-2 grid grid-cols-2 gap-4 p-3 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl border border-blue-100/50 dark:border-blue-900/20">
+                  <div className="col-span-2 grid grid-cols-2 gap-4 p-3 bg-blue-900/10 rounded-xl border border-blue-900/20">
                     <div>
-                      <p className="text-blue-600/70 dark:text-blue-400/70 text-[10px] uppercase font-bold tracking-wider mb-1">Заводская вязкость</p>
-                      <p className="font-bold text-blue-900 dark:text-blue-100">{rec.factory_viscosity}</p>
+                      <p className="text-blue-400/70 text-[10px] uppercase font-bold tracking-wider mb-1">Заводская вязкость</p>
+                      <p className="font-bold text-blue-100">{rec.factory_viscosity}</p>
                     </div>
                     <div>
-                      <p className="text-emerald-600/70 dark:text-emerald-400/70 text-[10px] uppercase font-bold tracking-wider mb-1">Рекомендованная ИИ</p>
-                      <p className="font-bold text-emerald-700 dark:text-emerald-400">{rec.recommended_viscosity}</p>
+                      <p className="text-emerald-400/70 text-[10px] uppercase font-bold tracking-wider mb-1">Рекомендованная ИИ</p>
+                      <p className="font-bold text-emerald-400">{rec.recommended_viscosity}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-4 bg-zinc-50/50 dark:bg-zinc-900/20">
+                <div className="p-4 bg-zinc-900/20">
                   <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
                     <CheckCircle2 size={16} className="text-emerald-500" />
                     Рекомендуемые продукты
@@ -175,35 +175,35 @@ export default function Result() {
                               transition={{ duration: 0.2 }}
                             >
                               {rec.products.filter(p => p.brand_name === brand).map(product => (
-                                <div key={product.id} className="bg-white dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl p-3 shadow-sm mb-3 last:mb-0">
+                                <div key={product.id} className="bg-zinc-950 border border-zinc-800 rounded-xl p-3 shadow-sm mb-3 last:mb-0">
                                   <div className="flex justify-between items-start mb-2">
-                                    <h5 className="font-bold text-blue-600 dark:text-blue-400 leading-tight">
+                                    <h5 className="font-bold text-blue-400 leading-tight">
                                       {product.product_name}
                                     </h5>
                                   </div>
-                                  <p className="text-xs text-zinc-600 dark:text-zinc-400 mb-2">
+                                  <p className="text-xs text-zinc-400 mb-2">
                                     {product.description}
                                   </p>
                                   <div className="grid grid-cols-2 gap-2 mb-3">
                                     {product.base_technology && (
                                       <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
-                                        База: <span className="text-zinc-900 dark:text-zinc-100">{product.base_technology}</span>
+                                        База: <span className="text-zinc-100">{product.base_technology}</span>
                                       </div>
                                     )}
                                     {product.article_number && (
                                       <div className="text-[10px] text-zinc-500 uppercase font-bold tracking-wider">
-                                        Артикул: <span className="text-zinc-900 dark:text-zinc-100">{product.article_number}</span>
+                                        Артикул: <span className="text-zinc-100">{product.article_number}</span>
                                       </div>
                                     )}
                                   </div>
                                   <div className="flex flex-wrap gap-1">
                                     {product.approvals.slice(0, 3).map(app => (
-                                      <span key={app} className="text-[10px] px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-300">
+                                      <span key={app} className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-300">
                                         {app}
                                       </span>
                                     ))}
                                     {product.approvals.length > 3 && (
-                                      <span className="text-[10px] px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-300">
+                                      <span className="text-[10px] px-1.5 py-0.5 bg-zinc-800 rounded text-zinc-300">
                                         +{product.approvals.length - 3}
                                       </span>
                                     )}
@@ -229,14 +229,14 @@ export default function Result() {
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
-        className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/50 rounded-2xl p-4 flex gap-3 items-start mt-4"
+        className="bg-amber-950/30 border border-amber-900/50 rounded-2xl p-4 flex gap-3 items-start mt-4"
       >
-        <Info className="text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" size={20} />
+        <Info className="text-amber-500 shrink-0 mt-0.5" size={20} />
         <div className="space-y-2">
-          <p className="text-sm text-amber-800 dark:text-amber-400 leading-relaxed">
+          <p className="text-sm text-amber-400 leading-relaxed">
             Рекомендация основана на официальных каталогах брендов по состоянию на март 2026. Всегда проверяйте актуальную сервисную книжку автомобиля и консультируйтесь с официальным сервисом. Я не заменяю профессиональную диагностику.
           </p>
-          <p className="text-xs text-amber-700/70 dark:text-amber-500/70 leading-relaxed">
+          <p className="text-xs text-amber-500/70 leading-relaxed">
             Выбор масла и указанные объемы являются справочными. При замене ориентируйтесь на уровень по щупу или контрольному отверстию.
           </p>
         </div>

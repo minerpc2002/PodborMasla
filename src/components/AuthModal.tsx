@@ -30,8 +30,8 @@ export default function AuthModal() {
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       <Card className="w-full max-w-md border-none shadow-2xl animate-in fade-in zoom-in-95 duration-300">
         <CardHeader className="space-y-3 pb-4">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mb-2 mx-auto">
-            <User className="text-blue-600 dark:text-blue-400" size={24} />
+          <div className="w-12 h-12 bg-blue-900/30 rounded-full flex items-center justify-center mb-2 mx-auto">
+            <User className="text-blue-400" size={24} />
           </div>
           <CardTitle className="text-2xl text-center font-display">Авторизация</CardTitle>
           <CardDescription className="text-center text-base">
@@ -60,7 +60,7 @@ export default function AuthModal() {
                 className="uppercase"
               />
               <p className="text-xs text-zinc-500 leading-relaxed">
-                <span className="font-semibold text-zinc-700 dark:text-zinc-300">Внимание:</span> Промокод могут предоставить только продавцы магазина MasloMarket. Он увеличивает лимит поисков.
+                <span className="font-semibold text-zinc-300">Внимание:</span> Промокод могут предоставить только продавцы магазина MasloMarket. Он увеличивает лимит поисков.
               </p>
             </div>
 

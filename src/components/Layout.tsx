@@ -32,7 +32,7 @@ export default function Layout() {
     (!promoCodeActivatedAt || Date.now() - promoCodeActivatedAt < 7 * 24 * 60 * 60 * 1000);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 font-sans">
+    <div className="flex min-h-screen flex-col bg-[#020203] text-zinc-50 font-sans transition-colors duration-300">
       <AuthModal />
       <PromoModal isOpen={isPromoModalOpen} onClose={() => setIsPromoModalOpen(false)} />
       <FAQModal isOpen={isFAQModalOpen} onClose={() => setIsFAQModalOpen(false)} />
@@ -41,19 +41,19 @@ export default function Layout() {
       <motion.header 
         initial={{ y: -20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="sticky top-0 z-50 w-full bg-slate-50/80 backdrop-blur-xl dark:bg-zinc-950/80 border-b border-zinc-200/50 dark:border-zinc-800/50"
+        className="sticky top-0 z-50 w-full liquid-glass border-b border-zinc-800/20"
       >
         <div className="flex h-16 items-center justify-between px-6 max-w-md mx-auto w-full">
           <Link to="/" className="flex items-center gap-3 font-display font-bold text-lg tracking-tight">
             <motion.div 
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              className="bg-blue-600 text-white p-1.5 rounded-xl shadow-sm"
+              className="bg-blue-600 text-white p-1.5 rounded-xl shadow-lg shadow-blue-500/20"
             >
               <Search size={20} strokeWidth={2.5} />
             </motion.div>
             <div className="flex flex-col leading-none">
-              <span className="text-zinc-900 dark:text-zinc-50">MasloMARKET</span>
+              <span className="text-zinc-50">MasloMARKET</span>
               <span className="text-[10px] uppercase tracking-widest mt-0.5 font-black">
                 ПОДБОР <span className="shimmer-ai">AI</span>
               </span>
@@ -64,6 +64,16 @@ export default function Layout() {
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
+              onClick={() => setIsFAQModalOpen(true)}
+              className="p-2 text-zinc-400 hover:text-blue-600 transition-colors"
+              title="Часто задаваемые вопросы"
+            >
+              <HelpCircle size={20} />
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
               onClick={() => setIsHowItWorksOpen(true)}
               className="p-2 text-zinc-400 hover:text-blue-600 transition-colors"
               title="Как это работает"
@@ -71,25 +81,15 @@ export default function Layout() {
               <Info size={20} />
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={() => setIsFAQModalOpen(true)}
-              className="p-2 text-zinc-400 hover:text-blue-600 transition-colors"
-              title="FAQ"
-            >
-              <HelpCircle size={20} />
-            </motion.button>
-
             {nickname && (
               <motion.button 
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setIsPromoModalOpen(true)}
-                className="flex items-center gap-2 bg-white dark:bg-zinc-900 px-3 py-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 shadow-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors"
+                className="flex items-center gap-2 liquid-glass px-3 py-1.5 rounded-2xl shadow-sm hover:bg-zinc-800/50 transition-colors"
               >
-                <div className="w-5 h-5 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center">
-                  <User size={12} className="text-blue-600 dark:text-blue-400" />
+                <div className="w-5 h-5 bg-blue-900/30 rounded-full flex items-center justify-center">
+                  <User size={12} className="text-blue-400" />
                 </div>
                 <span className="text-xs font-medium max-w-[80px] truncate">{nickname}</span>
                 {isPromoActive ? (
@@ -107,11 +107,11 @@ export default function Layout() {
         <Outlet />
         
         <footer className="mt-12 mb-24 flex flex-col items-center justify-center text-center space-y-3 opacity-60">
-          <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <ShieldCheck size={14} className="text-emerald-600 dark:text-emerald-500" />
+          <div className="flex items-center gap-1.5 text-xs font-medium text-zinc-400">
+            <ShieldCheck size={14} className="text-emerald-500" />
             <span>Конфиденциально и защищено M.A.R.A.T Guard</span>
           </div>
-          <p className="text-[10px] text-zinc-400 dark:text-zinc-500 max-w-[280px] leading-relaxed">
+          <p className="text-[10px] text-zinc-500 max-w-[280px] leading-relaxed">
             Проверка идет по официальной базе данных MasloMarket.
             <br />
             &copy; {new Date().getFullYear()} MasloMarket. Все права защищены.
@@ -125,7 +125,7 @@ export default function Layout() {
         className="fixed bottom-6 left-0 right-0 z-50 px-4 pb-safe pointer-events-none"
       >
         <div className="max-w-md mx-auto pointer-events-auto">
-          <div className="flex h-16 items-center justify-around px-2 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-xl border border-zinc-200/50 dark:border-zinc-800/50 rounded-full nav-shadow">
+          <div className="flex h-16 items-center justify-around px-2 liquid-glass-heavy rounded-full nav-shadow">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
@@ -136,8 +136,8 @@ export default function Layout() {
                   className={cn(
                     "flex flex-col items-center justify-center w-16 h-full gap-1 text-[10px] font-medium transition-all duration-200",
                     isActive 
-                      ? "text-blue-600 dark:text-blue-400 scale-105" 
-                      : "text-zinc-400 hover:text-zinc-900 dark:text-zinc-500 dark:hover:text-zinc-300"
+                      ? "text-blue-400 scale-105" 
+                      : "text-zinc-500 hover:text-zinc-300"
                   )}
                 >
                   <motion.div

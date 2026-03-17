@@ -54,7 +54,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
       <Card className="w-full max-w-md border-none shadow-2xl animate-in fade-in zoom-in-95 duration-300 relative">
         <button 
           onClick={onClose}
-          className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+          className="absolute right-4 top-4 p-2 text-zinc-400 hover:text-zinc-300 rounded-full hover:bg-zinc-800 transition-colors"
         >
           <X size={20} />
         </button>
@@ -62,25 +62,25 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
         {isPromoActive ? (
           <>
             <CardHeader className="space-y-3 pb-4 pt-8">
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-2 mx-auto">
-                <CheckCircle2 className="text-emerald-600 dark:text-emerald-400" size={24} />
+              <div className="w-12 h-12 bg-emerald-900/30 rounded-full flex items-center justify-center mb-2 mx-auto">
+                <CheckCircle2 className="text-emerald-400" size={24} />
               </div>
               <CardTitle className="text-2xl text-center font-display">PRO Аккаунт активен</CardTitle>
               <CardDescription className="text-center text-base">
-                У вас активирован промокод <span className="font-bold text-zinc-900 dark:text-zinc-100">{promoCode}</span>
+                У вас активирован промокод <span className="font-bold text-zinc-100">{promoCode}</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-emerald-50 dark:bg-emerald-900/20 p-4 rounded-xl text-center space-y-2 mb-4">
-                <p className="text-sm font-medium text-emerald-800 dark:text-emerald-300">
+              <div className="bg-emerald-900/20 p-4 rounded-xl text-center space-y-2 mb-4">
+                <p className="text-sm font-medium text-emerald-300">
                   Вам доступно {status.totalAttempts} поисков раз в 20 минут.
                 </p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400">
+                <p className="text-xs text-emerald-400">
                   Осталось дней: <span className="font-bold">{getDaysLeft()}</span>
                 </p>
               </div>
 
-              <div className="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl space-y-3">
+              <div className="bg-zinc-900/50 p-4 rounded-xl space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Search size={16} className="text-blue-500" />
@@ -89,7 +89,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
                   <span className="font-bold text-lg">{status.remainingAttempts} / {status.totalAttempts}</span>
                 </div>
                 {status.minutesUntilReset > 0 && (
-                  <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
+                  <div className="flex items-center justify-between text-zinc-400">
                     <div className="flex items-center gap-2 text-sm">
                       <Clock size={16} />
                       <span>Обновление через:</span>
@@ -101,7 +101,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
 
               <Button 
                 onClick={onClose}
-                className="w-full mt-6 bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 dark:text-zinc-900 text-white" 
+                className="w-full mt-6 bg-zinc-100 hover:bg-zinc-200 text-zinc-900" 
                 size="lg"
               >
                 Отлично
@@ -111,8 +111,8 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
         ) : (
           <>
             <CardHeader className="space-y-3 pb-4 pt-8">
-              <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-2 mx-auto">
-                <Gift className="text-emerald-600 dark:text-emerald-400" size={24} />
+              <div className="w-12 h-12 bg-emerald-900/30 rounded-full flex items-center justify-center mb-2 mx-auto">
+                <Gift className="text-emerald-400" size={24} />
               </div>
               <CardTitle className="text-2xl text-center font-display">Активация промокода</CardTitle>
               <CardDescription className="text-center text-base">
@@ -120,7 +120,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl space-y-3 mb-6">
+              <div className="bg-zinc-900/50 p-4 rounded-xl space-y-3 mb-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm font-medium">
                     <Search size={16} className="text-blue-500" />
@@ -129,7 +129,7 @@ export default function PromoModal({ isOpen, onClose }: PromoModalProps) {
                   <span className="font-bold text-lg">{status.remainingAttempts} / {status.totalAttempts}</span>
                 </div>
                 {status.minutesUntilReset > 0 && (
-                  <div className="flex items-center justify-between text-zinc-500 dark:text-zinc-400">
+                  <div className="flex items-center justify-between text-zinc-400">
                     <div className="flex items-center gap-2 text-sm">
                       <Clock size={16} />
                       <span>Обновление через:</span>

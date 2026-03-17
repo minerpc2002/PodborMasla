@@ -21,12 +21,12 @@ export default function History() {
             <HistoryIcon className="text-blue-500" />
             История
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
+          <p className="text-zinc-400">
             Последние просмотренные автомобили
           </p>
         </div>
         {history.length > 0 && (
-          <Button variant="ghost" size="icon" onClick={clearHistory} className="text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
+          <Button variant="ghost" size="icon" onClick={clearHistory} className="text-red-500 hover:text-red-600 hover:bg-red-950/30">
             <Trash2 size={20} />
           </Button>
         )}
@@ -36,11 +36,11 @@ export default function History() {
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-500 dark:text-zinc-400"
+          className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-400"
         >
           <HistoryIcon size={48} className="opacity-20" />
           <p>История пуста</p>
-          <Link to="/search" className="text-blue-600 dark:text-blue-400 font-medium hover:underline">
+          <Link to="/search" className="text-blue-400 font-medium hover:underline">
             Перейти к подбору
           </Link>
         </motion.div>

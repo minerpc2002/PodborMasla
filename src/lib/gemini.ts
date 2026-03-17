@@ -67,49 +67,60 @@ function getApiKey() {
 
 const FREE_MODELS = [
   'gemini-3.1-pro-preview',
-  'gemini-3-flash-preview',
-  'gemini-2.5-flash'
+  'gemini-3-flash-preview'
 ];
 
 async function callGeminiWithRetry(ai: any, params: any, retries = 3): Promise<any> {
   let modelIndex = 0;
   let attempt = 0;
+  const totalAttempts = retries * FREE_MODELS.length;
   
-  while (attempt < retries * FREE_MODELS.length) {
+  while (attempt < totalAttempts) {
+    const currentModel = FREE_MODELS[modelIndex];
     try {
-      params.model = FREE_MODELS[modelIndex];
+      params.model = currentModel;
+      console.log(`Calling Gemini (${currentModel}), attempt ${attempt + 1}/${totalAttempts}...`);
       return await ai.models.generateContent(params);
     } catch (error: any) {
-      const isQuotaError = error.message?.includes('429') || 
-                          error.message?.includes('quota') || 
-                          error.message?.includes('RESOURCE_EXHAUSTED');
+      const errorMsg = error.message || '';
+      console.error(`Gemini error (${currentModel}):`, errorMsg);
+
+      const isClientError = errorMsg.includes('400') || 
+                           errorMsg.includes('INVALID_ARGUMENT') ||
+                           errorMsg.includes('401') ||
+                           errorMsg.includes('403') ||
+                           errorMsg.includes('PERMISSION_DENIED');
       
-      if (isQuotaError) {
-        console.warn(`Лимит исчерпан для ${FREE_MODELS[modelIndex]}. Переключение на следующую модель...`);
-        modelIndex = (modelIndex + 1) % FREE_MODELS.length;
-        attempt++;
-        
-        // Небольшая задержка перед повтором
-        await new Promise(resolve => setTimeout(resolve, 500));
+      if (isClientError) {
+        throw error; // Don't retry on client errors
+      }
+
+      // Retry on everything else (429, 500, 503, Rpc failed, etc.)
+      modelIndex = (modelIndex + 1) % FREE_MODELS.length;
+      attempt++;
+      
+      if (attempt < totalAttempts) {
+        const delay = Math.pow(2, Math.floor(attempt / FREE_MODELS.length)) * 1000;
+        console.warn(`Retrying in ${delay}ms with ${FREE_MODELS[modelIndex]}...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
         continue;
       }
       throw error;
     }
   }
-  throw new Error('Все доступные модели перегружены. Пожалуйста, попробуйте позже.');
+  throw new Error('Все доступные модели ИИ временно недоступны. Пожалуйста, попробуйте позже.');
 }
 
 async function getGeminiVinHint(ai: any, vin: string): Promise<string | null> {
   try {
     const prompt = `Decode this VIN: ${vin}. Return ONLY the Brand and Model. Example: "BMW X4". 
-    IMPORTANT: This is a specialized task. Do not guess. Use your internal knowledge or search if available.
+    IMPORTANT: This is a specialized task. Do not guess. 
     If you are not 100% sure, return "Unknown".`;
     
     const response = await callGeminiWithRetry(ai, {
       contents: prompt,
       config: {
         temperature: 0,
-        tools: [{ googleSearch: {} }] as any,
       }
     }, 1);
     const text = response.text?.trim();

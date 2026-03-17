@@ -41,17 +41,17 @@ export default function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProp
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
-            className="relative w-full max-w-sm bg-white dark:bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden border border-zinc-200 dark:border-zinc-800"
+            className="relative w-full max-w-sm bg-zinc-900 rounded-3xl shadow-2xl overflow-hidden border border-zinc-800"
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl">
-                    <Info className="text-blue-600 dark:text-blue-400" size={20} />
+                  <div className="p-2 bg-blue-900/30 rounded-xl">
+                    <Info className="text-blue-400" size={20} />
                   </div>
                   <h2 className="text-xl font-bold">Как это работает?</h2>
                 </div>
-                <button onClick={onClose} className="p-2 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-full transition-colors">
+                <button onClick={onClose} className="p-2 hover:bg-zinc-800 rounded-full transition-colors">
                   <X size={20} />
                 </button>
               </div>
@@ -68,7 +68,7 @@ export default function HowItWorksModal({ isOpen, onClose }: HowItWorksModalProp
                     <div className="shrink-0 mt-1">{step.icon}</div>
                     <div>
                       <h3 className="font-bold text-sm mb-1">{step.title}</h3>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-zinc-400 leading-relaxed">
                         {step.description}
                       </p>
                     </div>

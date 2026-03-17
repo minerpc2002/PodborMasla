@@ -203,16 +203,16 @@ export default function Search() {
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-4 pt-4 mt-4 border-t border-zinc-100 dark:border-zinc-800"
+      className="space-y-4 pt-4 mt-4 border-t border-zinc-800"
     >
-      <h3 className="text-sm font-semibold flex items-center gap-2 text-zinc-700 dark:text-zinc-300">
+      <h3 className="text-sm font-semibold flex items-center gap-2 text-zinc-300">
         <Settings2 size={16} />
         Уточняющие параметры (опционально)
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Пробег</label>
-          <Select value={mileage} onChange={(e) => setMileage(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
+          <Select value={mileage} onChange={(e) => setMileage(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
             <option value="">Не указан</option>
             <option value="До 50 000 км">До 50 000 км</option>
             <option value="50 000 - 100 000 км">50 000 - 100 000 км</option>
@@ -222,7 +222,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Условия эксплуатации</label>
-          <Select value={conditions} onChange={(e) => setConditions(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
+          <Select value={conditions} onChange={(e) => setConditions(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
             <option value="">Обычные</option>
             <option value="Город (пробки)">Город (пробки)</option>
             <option value="Трасса">Трасса</option>
@@ -233,7 +233,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Расположение руля</label>
-          <Select value={handDrive} onChange={(e) => setHandDrive(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
+          <Select value={handDrive} onChange={(e) => setHandDrive(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
             <option value="">Не указано</option>
             <option value="Левый">Левый</option>
             <option value="Правый">Правый</option>
@@ -241,7 +241,7 @@ export default function Search() {
         </div>
         <div className="space-y-2">
           <label className="text-xs font-medium text-zinc-500">Тип топлива</label>
-          <Select value={fuelType} onChange={(e) => setFuelType(e.target.value)} className="rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none">
+          <Select value={fuelType} onChange={(e) => setFuelType(e.target.value)} className="rounded-xl bg-zinc-800 border-none">
             <option value="">Не указано</option>
             <option value="Бензин">Бензин</option>
             <option value="Дизель">Дизель</option>
@@ -261,16 +261,16 @@ export default function Search() {
       >
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Выбор авто</h1>
-          <p className="text-zinc-500 dark:text-zinc-400">
+          <p className="text-zinc-400">
             Укажите параметры или введите VIN для точного подбора
           </p>
         </div>
         <button 
           onClick={() => setShowHowItWorks(true)}
-          className="p-2 bg-zinc-100 dark:bg-zinc-800 rounded-full text-zinc-600 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors"
+          className="p-2 bg-zinc-800 rounded-full text-zinc-300 hover:bg-zinc-700 transition-colors"
           title="Как это работает?"
         >
-          <HelpCircle size={24} />
+          <Info size={24} />
         </button>
       </motion.div>
 
@@ -288,11 +288,11 @@ export default function Search() {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white dark:bg-zinc-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative max-h-[80vh] overflow-y-auto"
+              className="bg-zinc-900 rounded-3xl p-6 max-w-md w-full shadow-2xl relative max-h-[80vh] overflow-y-auto"
             >
               <button 
                 onClick={() => setShowHowItWorks(false)}
-                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 bg-zinc-100 dark:bg-zinc-800 rounded-full transition-colors"
+                className="absolute top-4 right-4 p-2 text-zinc-400 hover:text-zinc-200 bg-zinc-800 rounded-full transition-colors"
               >
                 <X size={20} />
               </button>
@@ -302,31 +302,31 @@ export default function Search() {
                 Как это работает?
               </h2>
               
-              <div className="space-y-4 text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
+              <div className="space-y-4 text-zinc-300 text-sm leading-relaxed">
                 <p>
                   Наше приложение использует передовые технологии для точного подбора масел и жидкостей для вашего автомобиля.
                 </p>
                 
-                <div className="bg-zinc-50 dark:bg-zinc-800/50 p-4 rounded-2xl space-y-3 border border-zinc-100 dark:border-zinc-800">
+                <div className="bg-zinc-800/50 p-4 rounded-2xl space-y-3 border border-zinc-800">
                   <div className="flex gap-3">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">1</div>
+                    <div className="w-6 h-6 rounded-full bg-blue-900/50 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">1</div>
                     <p><strong>Сбор данных:</strong> Вы вводите VIN-код или параметры автомобиля.</p>
                   </div>
                   <div className="flex gap-3">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">2</div>
+                    <div className="w-6 h-6 rounded-full bg-blue-900/50 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">2</div>
                     <p><strong>Поиск в каталоге:</strong> Мы обращаемся к официальным базам данных для получения точных заводских допусков и заправочных объемов.</p>
                   </div>
                   <div className="flex gap-3">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">3</div>
+                    <div className="w-6 h-6 rounded-full bg-blue-900/50 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">3</div>
                     <p><strong>Анализ нейросетью:</strong> ИИ анализирует полученные данные, учитывает ваш пробег и условия эксплуатации.</p>
                   </div>
                   <div className="flex gap-3">
-                    <div className="w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">4</div>
+                    <div className="w-6 h-6 rounded-full bg-blue-900/50 text-blue-400 flex items-center justify-center font-bold text-xs shrink-0">4</div>
                     <p><strong>Рекомендации:</strong> Вы получаете список лучших продуктов (Ravenol, Motul, Bardahl), идеально подходящих для вашего авто.</p>
                   </div>
                 </div>
                 
-                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-4">
+                <p className="text-xs text-zinc-400 mt-4">
                   Мы гарантируем высокую точность данных благодаря использованию официальных баз и интеллектуальных алгоритмов обработки.
                 </p>
               </div>
@@ -342,24 +342,24 @@ export default function Search() {
         )}
       </AnimatePresence>
 
-      <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-2xl border border-blue-100 dark:border-blue-800/50 flex gap-3 items-start">
-        <Info className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" size={18} />
-        <p className="text-xs text-blue-700 dark:text-blue-300 leading-relaxed">
+      <div className="bg-blue-900/20 p-4 rounded-2xl border border-blue-800/50 flex gap-3 items-start">
+        <Info className="text-blue-400 flex-shrink-0 mt-0.5" size={18} />
+        <p className="text-xs text-blue-300 leading-relaxed">
           Для точного подбора жидкостей, пожалуйста, убедитесь, что вы указали корректные данные или правильный VIN-код.
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4 bg-zinc-100/50 dark:bg-zinc-900/50 p-1 rounded-2xl">
-          <TabsTrigger value="manual" className="flex items-center gap-1.5 rounded-xl transition-all">
+        <TabsList className="grid w-full grid-cols-2 mb-4 liquid-glass p-1 rounded-2xl">
+          <TabsTrigger value="manual" className="flex items-center gap-1.5 rounded-xl transition-all data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
             По автомобилю
-            <span className="px-1.5 py-0.5 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 text-[9px] font-bold uppercase tracking-wider rounded-md">
+            <span className="px-1.5 py-0.5 bg-blue-900/50 text-blue-400 text-[9px] font-bold uppercase tracking-wider rounded-md">
               Beta
             </span>
           </TabsTrigger>
-          <TabsTrigger value="vin" className="flex items-center gap-1.5 rounded-xl transition-all">
+          <TabsTrigger value="vin" className="flex items-center gap-1.5 rounded-xl transition-all data-[state=active]:bg-blue-600 data-[state=active]:text-white data-[state=active]:shadow-lg">
             По VIN коду
-            <span className="px-1.5 py-0.5 bg-purple-100 dark:bg-purple-900/50 text-purple-600 dark:text-purple-400 text-[9px] font-bold uppercase tracking-wider rounded-md">
+            <span className="px-1.5 py-0.5 bg-purple-900/50 text-purple-400 text-[9px] font-bold uppercase tracking-wider rounded-md">
               Alpha
             </span>
           </TabsTrigger>
@@ -374,17 +374,17 @@ export default function Search() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="border-none shadow-xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden">
+                <Card className="border-none shadow-xl liquid-glass rounded-3xl overflow-hidden">
                   <CardContent className="pt-6 space-y-5">
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Марка автомобиля</label>
+                      <label className="text-sm font-semibold text-zinc-300">Марка автомобиля</label>
                       <Input 
                         list="brands-list"
                         placeholder="Например: Toyota" 
                         value={brand}
                         onChange={(e) => setBrand(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="brands-list">
                         {POPULAR_BRANDS.map(b => <option key={b} value={b} />)}
@@ -393,19 +393,19 @@ export default function Search() {
 
                     <div className="space-y-2 relative">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
                           Модель
-                          {isLoadingModels && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                          {isLoadingModels && <div className="ai-loader" />}
                         </label>
                         {brand && !modelSuggestions.length && !isLoadingModels && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={fetchModels}
-                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="text-[9px] font-bold text-white flex items-center gap-1 shimmer-ai-bg px-2 py-1 rounded-lg hover:opacity-90 transition-all shadow-md shadow-blue-500/10"
                           >
-                            <Sparkles size={10} />
-                            Автопоиск
+                            <Sparkles size={10} className="animate-pulse" />
+                            <span>AI ПОДБОР</span>
                           </motion.button>
                         )}
                       </div>
@@ -415,7 +415,7 @@ export default function Search() {
                         value={model}
                         onChange={(e) => setModel(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="models-list">
                         {modelSuggestions.map(m => <option key={m} value={m} />)}
@@ -424,12 +424,12 @@ export default function Search() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">Год <span className="text-zinc-400 font-normal">(опц.)</span></label>
+                        <label className="text-sm font-semibold text-zinc-300">Год <span className="text-zinc-400 font-normal">(опц.)</span></label>
                         <Select 
                           value={year}
                           onChange={(e) => setYear(e.target.value)}
                           disabled={isSearchingManual}
-                          className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                          className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                         >
                           <option value="">Выберите год</option>
                           {YEARS.map(y => <option key={y} value={y}>{y}</option>)}
@@ -437,19 +437,19 @@ export default function Search() {
                       </div>
                       <div className="space-y-2 relative">
                         <div className="flex items-center justify-between">
-                          <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                          <label className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
                             Кузов
-                            {isLoadingBodies && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                            {isLoadingBodies && <div className="ai-loader" />}
                           </label>
                           {brand && model && year.length === 4 && !bodySuggestions.length && !isLoadingBodies && (
                             <motion.button
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={fetchBodies}
-                              className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                              className="text-[9px] font-bold text-white flex items-center gap-1 shimmer-ai-bg px-2 py-1 rounded-lg hover:opacity-90 transition-all shadow-md shadow-blue-500/10"
                             >
-                              <Sparkles size={10} />
-                              Автопоиск
+                              <Sparkles size={10} className="animate-pulse" />
+                              <span>AI ПОДБОР</span>
                             </motion.button>
                           )}
                         </div>
@@ -459,7 +459,7 @@ export default function Search() {
                           value={body}
                           onChange={(e) => setBody(e.target.value)}
                           disabled={isSearchingManual}
-                          className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                          className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                         />
                         <datalist id="body-list">
                           {bodySuggestions.map(b => <option key={b} value={b} />)}
@@ -469,19 +469,19 @@ export default function Search() {
 
                     <div className="space-y-2 relative">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
                           Двигатель <span className="text-zinc-400 font-normal">(опц.)</span>
-                          {isLoadingEngines && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                          {isLoadingEngines && <div className="ai-loader" />}
                         </label>
                         {brand && model && body && !engineSuggestions.length && !isLoadingEngines && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={fetchEngines}
-                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="text-[9px] font-bold text-white flex items-center gap-1 shimmer-ai-bg px-2 py-1 rounded-lg hover:opacity-90 transition-all shadow-md shadow-blue-500/10"
                           >
-                            <Sparkles size={10} />
-                            Автопоиск
+                            <Sparkles size={10} className="animate-pulse" />
+                            <span>AI ПОДБОР</span>
                           </motion.button>
                         )}
                       </div>
@@ -491,7 +491,7 @@ export default function Search() {
                         value={engine}
                         onChange={(e) => setEngine(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="engines-list">
                         {engineSuggestions.map(e => <option key={e} value={e} />)}
@@ -500,19 +500,19 @@ export default function Search() {
 
                     <div className="space-y-2 relative">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
                           Мощность двигателя <span className="text-zinc-400 font-normal">(опц.)</span>
-                          {isLoadingPower && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                          {isLoadingPower && <div className="ai-loader" />}
                         </label>
                         {brand && model && body && engine && !powerSuggestions.length && !isLoadingPower && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={fetchPower}
-                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="text-[9px] font-bold text-white flex items-center gap-1 shimmer-ai-bg px-2 py-1 rounded-lg hover:opacity-90 transition-all shadow-md shadow-blue-500/10"
                           >
-                            <Sparkles size={10} />
-                            Автопоиск
+                            <Sparkles size={10} className="animate-pulse" />
+                            <span>AI ПОДБОР</span>
                           </motion.button>
                         )}
                       </div>
@@ -522,7 +522,7 @@ export default function Search() {
                         value={power}
                         onChange={(e) => setPower(e.target.value)}
                         disabled={isSearchingManual}
-                        className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                        className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                       />
                       <datalist id="power-list">
                         {powerSuggestions.map(p => <option key={p} value={p} />)}
@@ -531,19 +531,19 @@ export default function Search() {
 
                     <div className="space-y-3 relative">
                       <div className="flex items-center justify-between">
-                        <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-2">
+                        <label className="text-sm font-semibold text-zinc-200 flex items-center gap-2">
                           Тип трансмиссии <span className="text-red-500">*</span>
-                          {isLoadingTransmissions && <Loader2 className="h-3 w-3 animate-spin text-blue-500" />}
+                          {isLoadingTransmissions && <div className="ai-loader" />}
                         </label>
                         {brand && model && body && engine && !transmissionSuggestions.length && !isLoadingTransmissions && (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={fetchTransmissions}
-                            className="text-[10px] font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1 bg-blue-50 dark:bg-blue-900/30 px-2 py-1 rounded-lg hover:bg-blue-100 transition-colors"
+                            className="text-[9px] font-bold text-white flex items-center gap-1 shimmer-ai-bg px-2 py-1 rounded-lg hover:opacity-90 transition-all shadow-md shadow-blue-500/10"
                           >
-                            <Sparkles size={10} />
-                            Автоподбор
+                            <Sparkles size={10} className="animate-pulse" />
+                            <span>AI ПОДБОР</span>
                           </motion.button>
                         )}
                       </div>
@@ -567,10 +567,10 @@ export default function Search() {
                                 onClick={() => setTransmission(t)}
                                 className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border-2 ${
                                   transmission === t 
-                                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300' 
+                                    ? 'border-blue-500 bg-blue-900/30 text-blue-300' 
                                     : shouldHighlight
-                                      ? 'border-yellow-400 animate-shimmer-yellow text-zinc-900'
-                                      : 'border-transparent bg-zinc-50 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'
+                                      ? 'border-yellow-400 animate-shimmer-yellow text-zinc-100'
+                                      : 'border-transparent bg-zinc-800 text-zinc-300'
                                 }`}
                               >
                                 {shouldHighlight && <span className="mr-1">★</span>}
@@ -592,7 +592,7 @@ export default function Search() {
                           value={transmission}
                           onChange={(e) => setTransmission(e.target.value)}
                           disabled={isSearchingManual}
-                          className="h-12 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all"
+                          className="h-12 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-blue-500 transition-all text-zinc-100"
                         >
                           <option value="">Выберите трансмиссию</option>
                           <option value="АКПП">АКПП (Автомат)</option>
@@ -619,14 +619,14 @@ export default function Search() {
                     </AnimatePresence>
                     
                     <Button 
-                      className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-14 text-lg font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95" 
+                      className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white rounded-2xl h-12 text-base font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95" 
                       size="lg"
                       disabled={!brand || !model || !body || isSearchingManual}
                       onClick={handleManualSearch}
                     >
                       {isSearchingManual ? (
                         <>
-                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          <div className="ai-loader mr-2" />
                           {searchStatus || 'Поиск в базе...'}
                         </>
                       ) : (
@@ -651,13 +651,13 @@ export default function Search() {
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="border-none shadow-xl bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden">
+                <Card className="border-none shadow-xl liquid-glass rounded-3xl overflow-hidden">
                   <CardContent className="pt-6 space-y-5">
-                    <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl flex gap-3">
-                      <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div className="p-4 bg-amber-900/20 border border-amber-800 rounded-2xl flex gap-3">
+                      <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0 mt-0.5" />
                       <div className="space-y-1">
-                        <p className="text-sm font-bold text-amber-800 dark:text-amber-300">Внимание: ALPHA версия</p>
-                        <p className="text-xs text-amber-700 dark:text-amber-400 leading-relaxed">
+                        <p className="text-sm font-bold text-amber-300">Внимание: ALPHA версия</p>
+                        <p className="text-xs text-amber-400 leading-relaxed">
                           Поиск по VIN находится в стадии тестирования. Автомобили могут определяться некорректно. 
                           Рекомендуем проверять результаты или использовать ручной поиск.
                         </p>
@@ -665,7 +665,7 @@ export default function Search() {
                     </div>
 
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+                      <label className="text-sm font-semibold text-zinc-300">
                         VIN код автомобиля
                       </label>
                       <Input 
@@ -673,7 +673,7 @@ export default function Search() {
                         value={vin}
                         onChange={(e) => setVin(e.target.value.toUpperCase())}
                         disabled={isSearchingVin}
-                        className="h-14 rounded-xl bg-zinc-50 dark:bg-zinc-800 border-none focus:ring-2 focus:ring-purple-500 uppercase font-mono text-lg tracking-wider transition-all"
+                        className="h-14 rounded-xl bg-zinc-800 border-none focus:ring-2 focus:ring-purple-500 uppercase font-mono text-lg tracking-wider transition-all"
                         maxLength={17}
                       />
                       <AnimatePresence>
@@ -688,8 +688,8 @@ export default function Search() {
                           </motion.p>
                         )}
                       </AnimatePresence>
-                      <div className="p-4 rounded-2xl bg-purple-50 dark:bg-purple-900/20 border border-purple-100 dark:border-purple-800/50">
-                        <p className="text-xs text-purple-700 dark:text-purple-300 leading-relaxed flex gap-2">
+                      <div className="p-4 rounded-2xl bg-purple-900/20 border border-purple-800/50">
+                        <p className="text-xs text-purple-300 leading-relaxed flex gap-2">
                           <ScanLine size={14} className="flex-shrink-0 mt-0.5" />
                           ИИ проанализирует VIN и автоматически подберет подходящие жидкости.
                         </p>

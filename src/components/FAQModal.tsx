@@ -27,31 +27,31 @@ export default function FAQModal({ isOpen, onClose }: FAQModalProps) {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative w-full max-w-md overflow-hidden"
           >
-            <Card className="border-none shadow-2xl bg-white dark:bg-zinc-900 flex flex-col max-h-[90vh]">
+            <Card className="border-none shadow-2xl bg-zinc-900 flex flex-col max-h-[90vh]">
               <CardHeader className="relative pb-2 shrink-0">
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={onClose}
-                  className="absolute right-4 top-4 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-800 z-10"
+                  className="absolute right-4 top-4 rounded-full hover:bg-zinc-800 z-10"
                 >
                   <X size={20} />
                 </Button>
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4">
-                  <HelpCircle className="text-blue-600 dark:text-blue-400" size={28} />
+                <div className="w-12 h-12 bg-blue-900/30 rounded-2xl flex items-center justify-center mb-4">
+                  <HelpCircle className="text-blue-400" size={28} />
                 </div>
                 <CardTitle className="text-2xl font-display font-bold">Часто задаваемые вопросы</CardTitle>
                 <CardDescription>Помощь по работе сервиса MasloMARKET AI</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6 pt-4 overflow-y-auto">
                 <div className="space-y-4">
-                  <div className="flex gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-                    <div className="flex-shrink-0 w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center">
-                      <Globe className="text-emerald-600 dark:text-emerald-400" size={20} />
+                  <div className="flex gap-4 p-4 rounded-2xl bg-zinc-800/50 border border-zinc-800">
+                    <div className="flex-shrink-0 w-10 h-10 bg-emerald-900/30 rounded-xl flex items-center justify-center">
+                      <Globe className="text-emerald-400" size={20} />
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-semibold text-sm">Проблемы с доступом к ИИ?</h4>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-zinc-400 leading-relaxed">
                         В отдельных случаях корректная работа бота по подбору масел возможна только при использовании альтернативных способов подключения к сети (например, через защищённое соединение).
                         <br /><br />
                         Обратите внимание:
@@ -65,32 +65,32 @@ export default function FAQModal({ isOpen, onClose }: FAQModalProps) {
                     </div>
                   </div>
 
-                  <div className="flex gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-                    <div className="flex-shrink-0 w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                      <ShieldCheck className="text-blue-600 dark:text-blue-400" size={20} />
+                  <div className="flex gap-4 p-4 rounded-2xl bg-zinc-800/50 border border-zinc-800">
+                    <div className="flex-shrink-0 w-10 h-10 bg-blue-900/30 rounded-xl flex items-center justify-center">
+                      <ShieldCheck className="text-blue-400" size={20} />
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-semibold text-sm">Насколько точен подбор?</h4>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-zinc-400 leading-relaxed">
                         Наш ИИ анализирует официальные спецификации производителей и кросс-номера MasloMarket для обеспечения максимальной точности.
                       </p>
                     </div>
                   </div>
 
-                  <div className="flex gap-4 p-4 rounded-2xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-100 dark:border-zinc-800">
-                    <div className="flex-shrink-0 w-10 h-10 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                      <Info className="text-purple-600 dark:text-purple-400" size={20} />
+                  <div className="flex gap-4 p-4 rounded-2xl bg-zinc-800/50 border border-zinc-800">
+                    <div className="flex-shrink-0 w-10 h-10 bg-purple-900/30 rounded-xl flex items-center justify-center">
+                      <Info className="text-purple-400" size={20} />
                     </div>
                     <div className="space-y-1">
                       <h4 className="font-semibold text-sm">Как работают лимиты?</h4>
-                      <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+                      <p className="text-xs text-zinc-400 leading-relaxed">
                         Бесплатные поиски ограничены по времени. Вы можете увеличить лимиты, введя промокод от продавцов MasloMarket.
                       </p>
                     </div>
                   </div>
                 </div>
 
-                <Button onClick={onClose} className="w-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl h-12 font-semibold">
+                <Button onClick={onClose} className="w-full bg-zinc-100 text-zinc-900 rounded-xl h-12 font-semibold">
                   Понятно
                 </Button>
               </CardContent>
