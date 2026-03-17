@@ -346,8 +346,10 @@ export async function searchByVin(vin: string, mileage?: string, conditions?: st
    - Provide recommendations based on factory data.
    - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
-   - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
-   - If the car is Japanese, also include Moly Green.
+   - For each unit, you MUST provide ALL suitable products from Ravenol mentioned in the catalog. 
+   - Also provide multiple options from Motul and Bardahl for each unit.
+   - If the car is Japanese, also include multiple options from Moly Green.
+   - Do not limit yourself to one product per brand; if there are multiple suitable ones (e.g., different lines like VMP, DXG, etc.), list them all.
 4. NO Liqui Moly.
 5. OUTPUT: Return JSON (Russian text).`;
   } else {
@@ -365,8 +367,10 @@ ${ravenolData.substring(0, 50000)}
    - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
    - For "factory_viscosity", list ALL viscosities mentioned in the catalog (e.g., "0W-20, 5W-30").
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
-   - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
-   - If the car is Japanese, also include Moly Green.
+   - For each unit, you MUST provide ALL suitable products from Ravenol mentioned in the catalog. 
+   - Also provide multiple options from Motul and Bardahl for each unit.
+   - If the car is Japanese, also include multiple options from Moly Green.
+   - Do not limit yourself to one product per brand; if there are multiple suitable ones (e.g., different lines like VMP, DXG, etc.), list them all.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
   }
@@ -379,7 +383,7 @@ ${ravenolData.substring(0, 50000)}
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
-        temperature: 0,
+        temperature: 0.2,
       }
     });
 
@@ -442,8 +446,10 @@ export async function searchByCarDetails(brand: string, model: string, year?: st
     2. Provide EXACT volumes, OEM specifications, and viscosities.
     3. RECOMMENDATIONS:
        - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
-       - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
-       - If the car is Japanese, also include Moly Green.
+       - For each unit, you MUST provide ALL suitable products from Ravenol mentioned in the catalog. 
+       - Also provide multiple options from Motul and Bardahl for each unit.
+       - If the car is Japanese, also include multiple options from Moly Green.
+       - Do not limit yourself to one product per brand; if there are multiple suitable ones (e.g., different lines like VMP, DXG, etc.), list them all.
     4. NO Liqui Moly.
     5. OUTPUT: Return JSON (Russian text). 
     6. IMPORTANT: Add a note in the description of the first unit that this data is provided by AI because the official catalog was unreachable.`;
@@ -462,8 +468,10 @@ ${ravenolData.substring(0, 50000)}
    - IMPORTANT: For each product, list ONLY the approvals and specifications that are DIRECTLY RELEVANT to this specific car's requirements. Do not list all approvals the product has.
    - For "factory_viscosity", list ALL viscosities mentioned in the catalog (e.g., "0W-20, 5W-30").
    - Adjust "recommended_viscosity" based on: Mileage: ${mileage || 'Not specified'}, Conditions: ${conditions || 'Normal'}, Power: ${power || 'Not specified'}, Hand Drive: ${handDrive || 'Not specified'}, Fuel Type: ${fuelType || 'Not specified'}.
-   - For each unit, you MUST provide products from these brands: Ravenol (primary), Motul, Bardahl.
-   - If the car is Japanese, also include Moly Green.
+   - For each unit, you MUST provide ALL suitable products from Ravenol mentioned in the catalog. 
+   - Also provide multiple options from Motul and Bardahl for each unit.
+   - If the car is Japanese, also include multiple options from Moly Green.
+   - Do not limit yourself to one product per brand; if there are multiple suitable ones (e.g., different lines like VMP, DXG, etc.), list them all.
 4. Units: Engine, Transmission, Diffs, Steering, Coolant, Brake.
 5. NO Liqui Moly.
 6. OUTPUT: Return JSON (Russian text). Ensure "factory_viscosity" and "volume_liters" are exactly as in the catalog.`;
@@ -477,7 +485,7 @@ ${ravenolData.substring(0, 50000)}
       config: {
         responseMimeType: 'application/json',
         responseSchema: carDataSchema,
-        temperature: 0.1,
+        temperature: 0.2,
       }
     });
 

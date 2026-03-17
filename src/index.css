@@ -23,25 +23,25 @@
   }
 
   .liquid-glass {
-    background: rgba(20, 20, 25, 0.45) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    box-shadow: var(--glass-shadow);
+    background: rgba(25, 25, 35, 0.5) !important;
+    backdrop-filter: blur(25px) saturate(200%);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
   }
 
   .liquid-glass-heavy {
-    background: rgba(15, 15, 20, 0.65) !important;
-    backdrop-filter: blur(30px) saturate(200%);
-    -webkit-backdrop-filter: blur(30px) saturate(200%);
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    box-shadow: var(--glass-shadow);
+    background: rgba(20, 20, 30, 0.75) !important;
+    backdrop-filter: blur(40px) saturate(220%);
+    -webkit-backdrop-filter: blur(40px) saturate(220%);
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
   }
 }
 
 body {
   -webkit-tap-highlight-color: transparent;
-  background-color: #020203;
+  background-color: #010103;
   transition: background-color 0.3s ease;
   overflow-x: hidden;
   color: #f8fafc;
@@ -57,14 +57,15 @@ body {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  filter: blur(80px);
-  opacity: 0.7;
+  filter: blur(100px);
+  opacity: 0.85;
 }
 
 .blob {
   position: absolute;
   border-radius: 50%;
-  animation: float 20s infinite alternate;
+  animation: float 25s infinite alternate ease-in-out;
+  mix-blend-mode: screen;
 }
 
 @keyframes float {

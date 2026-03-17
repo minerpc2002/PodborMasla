@@ -166,9 +166,13 @@ export default function Result() {
                   <div className="pt-1">
                     {rec.products && rec.products.length > 0 ? (
                       <Tabs defaultValue={rec.products[0]?.brand_name} className="w-full">
-                        <TabsList className="w-full grid grid-cols-3 h-10 mb-4">
+                        <TabsList className="w-full flex flex-wrap h-auto p-1 bg-zinc-950/50 border border-zinc-800 rounded-xl mb-4">
                           {Array.from(new Set(rec.products.map(p => p.brand_name))).map(brand => (
-                            <TabsTrigger key={brand} value={brand} className="text-xs">
+                            <TabsTrigger 
+                              key={brand} 
+                              value={brand} 
+                              className="flex-1 min-w-[80px] text-[10px] uppercase font-bold tracking-wider py-2 data-[state=active]:bg-zinc-800 data-[state=active]:text-white"
+                            >
                               {brand}
                             </TabsTrigger>
                           ))}

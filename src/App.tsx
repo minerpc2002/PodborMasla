@@ -21,9 +21,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <div className="bg-blobs">
-        <div className="blob w-[600px] h-[600px] bg-blue-500/40 top-[-20%] left-[-10%]" />
-        <div className="blob w-[700px] h-[700px] bg-fuchsia-500/30 bottom-[-20%] right-[-10%] animation-delay-2000" />
-        <div className="blob w-[500px] h-[500px] bg-cyan-400/30 top-[30%] right-[20%] animation-delay-4000" />
+        <div className="blob w-[800px] h-[800px] bg-blue-600/50 -top-[10%] -left-[10%]" />
+        <div className="blob w-[900px] h-[900px] bg-indigo-500/40 -bottom-[10%] -right-[10%] animation-delay-2000" />
+        <div className="blob w-[600px] h-[600px] bg-fuchsia-500/40 top-[20%] right-[10%] animation-delay-4000" />
+        <div className="blob w-[700px] h-[700px] bg-cyan-500/30 bottom-[20%] left-[10%] animation-delay-3000" />
       </div>
       <div className="relative z-10">
         <Routes>
